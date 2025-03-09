@@ -1,12 +1,13 @@
 package arima.api.models;
 
 import arima.api.analytics.ArimaSolver;
+import lombok.Getter;
 
 /**
  * ARIMA model
  */
 public class ArimaModel {
-
+    @Getter
     private final ArimaParameterModel params;
     private final double[] data;
     private final int trainDataSize;
@@ -16,8 +17,8 @@ public class ArimaModel {
     /**
      * Constructor for ArimaModel
      *
-     * @param params ARIMA parameter
-     * @param data original data
+     * @param params        ARIMA parameter
+     * @param data          original data
      * @param trainDataSize size of train data
      */
     public ArimaModel(ArimaParameterModel params, double[] data, int trainDataSize) {
@@ -25,7 +26,7 @@ public class ArimaModel {
         this.data = data;
         this.trainDataSize = trainDataSize;
     }
-    
+
     /**
      * Getter for AIC.
      *
@@ -37,8 +38,6 @@ public class ArimaModel {
 
     /**
      * Setter for Root Mean-Squared Error
-     *
-     * @param rmse source Root Mean-Squared Error
      */
     public void setAIC(final double aic) {
         this.aic = aic;
@@ -63,15 +62,6 @@ public class ArimaModel {
     }
 
     /**
-     * Getter for ARIMA parameters.
-     *
-     * @return ARIMA parameters for the model
-     */
-    public ArimaParameterModel getParams() {
-        return params;
-    }
-
-    /**
      * Forecast data base on training data and forecast size.
      *
      * @param forecastSize size of forecast
@@ -79,7 +69,7 @@ public class ArimaModel {
      */
     public ForecastResultModel forecast(final int forecastSize) {
         ForecastResultModel forecastResult = ArimaSolver
-            .forecastARIMA(params, data, trainDataSize, trainDataSize + forecastSize);
+                .forecastARIMA(params, data, trainDataSize, trainDataSize + forecastSize);
         forecastResult.setAIC(this.aic);
         forecastResult.setRMSE(this.rmse);
 

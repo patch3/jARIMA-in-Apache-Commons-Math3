@@ -3,14 +3,13 @@ package arima.api.analytics;
 import java.io.Serializable;
 
 public class Matrix implements Serializable {
-
     public static final long serialVersionUID = 42L;
 
     // Primary
     protected int _m = -1;
     protected int _n = -1;
     protected double[][] _data = null;
-    protected boolean _valid = false;
+    protected boolean _valid = true;
 
     // Secondary
     protected boolean _cholZero = false;
@@ -26,20 +25,21 @@ public class Matrix implements Serializable {
     /**
      * Constructor for InsightsMatrix
      *
-     * @param data 2-dimensional double array with pre-populated values
+     * @param data         2-dimensional double array with pre-populated values
      * @param makeDeepCopy if TRUE, allocated new memory space and copy data over
      *                     if FALSE, re-use the given memory space and overwrites on it
      */
     public Matrix(double[][] data, boolean makeDeepCopy) {
-        if (_valid = isValid2D(data)) {
+        if (_valid == isValid2D(data)) {
             _m = data.length;
             _n = data[0].length;
-            if (!makeDeepCopy) {
-                _data = data;
-            } else {
+            if (makeDeepCopy) {
                 _data = copy2DArray(data);
+            } else {
+                _data = data;
             }
-
+        } else {
+            throw new RuntimeException("Invalid matrix data");
         }
     }
 
@@ -55,7 +55,7 @@ public class Matrix implements Serializable {
      *
      * @param matrix 2-dimensional double array
      * @return TRUE, matrix is in valid format
-     *         FALSE, matrix is not in valid format
+     * FALSE, matrix is not in valid format
      */
     private static boolean isValid2D(double[][] matrix) {
         boolean result = true;
@@ -67,10 +67,10 @@ public class Matrix implements Serializable {
             for (int i = 1; i < row; ++i) {
                 if (matrix[i] == null || matrix[i].length != col) {
                     result = false;
+                    break;
                 }
             }
         }
-
         return result;
     }
 
@@ -140,8 +140,8 @@ public class Matrix implements Serializable {
     /**
      * Setter to modify a particular element in the matrix
      *
-     * @param i i-th row
-     * @param j j-th column
+     * @param i   i-th row
+     * @param j   j-th column
      * @param val new value
      */
     public void set(int i, int j, double val) {
@@ -182,7 +182,7 @@ public class Matrix implements Serializable {
      *
      * @param maxConditionNumber maximum condition number
      * @return TRUE, if the process succeed
-     *         FALSE, otherwise
+     * FALSE, otherwise
      */
     private boolean computeCholeskyDecomposition(final double maxConditionNumber) {
         _cholD = new double[_m];
@@ -254,7 +254,7 @@ public class Matrix implements Serializable {
     /**
      * Solve SPD(Symmetric positive definite) into vector
      *
-     * @param b vector
+     * @param b                  vector
      * @param maxConditionNumber maximum condition number
      * @return solution vector of SPD
      */
@@ -262,7 +262,7 @@ public class Matrix implements Serializable {
         if (!_valid || b == null || _n != b._m) {
             // invalid linear system
             throw new RuntimeException(
-                "[InsightsMatrix][solveSPDIntoVector] invalid linear system");
+                    "[InsightsMatrix][solveSPDIntoVector] invalid linear system");
         }
         if (_cholL == null) {
             // computing Cholesky Decomposition

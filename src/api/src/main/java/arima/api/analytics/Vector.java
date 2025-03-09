@@ -22,7 +22,7 @@ public class Vector implements Serializable {
     /**
      * Constructor for InsightVector
      *
-     * @param m size of the vector
+     * @param m     size of the vector
      * @param value initial value for all entries
      */
     public Vector(int m, double value) {
@@ -41,7 +41,7 @@ public class Vector implements Serializable {
     /**
      * Constructor for InsightVector
      *
-     * @param data 1-dimensional double array with pre-populated values
+     * @param data     1-dimensional double array with pre-populated values
      * @param deepCopy if TRUE, allocated new memory space and copy data over
      *                 if FALSE, re-use the given memory space and overwrites on it
      */
@@ -94,7 +94,7 @@ public class Vector implements Serializable {
             throw new RuntimeException("[InsightsVector] invalid Vector");
         } else if (i >= _m) {
             throw new IndexOutOfBoundsException(
-                String.format("[InsightsVector] Index: %d, Size: %d", i, _m));
+                    String.format("[InsightsVector] Index: %d, Size: %d", i, _m));
         }
         return _data[i];
     }
@@ -115,7 +115,7 @@ public class Vector implements Serializable {
     /**
      * Setter to modify a element in the vector
      *
-     * @param i element index
+     * @param i   element index
      * @param val new value
      */
     public void set(int i, double val) {
@@ -123,7 +123,7 @@ public class Vector implements Serializable {
             throw new RuntimeException("[InsightsVector] invalid Vector");
         } else if (i >= _m) {
             throw new IndexOutOfBoundsException(
-                String.format("[InsightsVector] Index: %d, Size: %d", i, _m));
+                    String.format("[InsightsVector] Index: %d, Size: %d", i, _m));
         }
         _data[i] = val;
     }

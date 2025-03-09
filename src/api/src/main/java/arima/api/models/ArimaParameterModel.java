@@ -1,7 +1,7 @@
 package arima.api.models;
 
-import arima.api.analytics.Vector;
 import arima.api.analytics.Integrator;
+import arima.api.analytics.Vector;
 
 /**
  * Simple wrapper for ARIMA parameters and fitted states
@@ -15,7 +15,7 @@ public final class ArimaParameterModel {
     public final int D;
     public final int Q;
     public final int m;
-    
+
     // ARMA part
     private final BackShift _opAR;
     private final BackShift _opMA;
@@ -42,9 +42,9 @@ public final class ArimaParameterModel {
      * @param m ARIMA parameter, the number of periods in each season
      */
     public ArimaParameterModel(
-        int p, int d, int q,
-        int P, int D, int Q,
-        int m) {
+            int p, int d, int q,
+            int P, int D, int Q,
+            int m) {
         this.p = p;
         this.d = d;
         this.q = q;
@@ -73,17 +73,16 @@ public final class ArimaParameterModel {
     /**
      * ARMA forecast of one data point.
      *
-     * @param data input data
+     * @param data   input data
      * @param errors array of errors
-     * @param index index
+     * @param index  index
      * @return one data point
      */
     public double forecastOnePointARMA(final double[] data, final double[] errors,
-        final int index) {
+                                       final int index) {
         final double estimateAR = _opAR.getLinearCombinationFrom(data, index);
         final double estimateMA = _opMA.getLinearCombinationFrom(errors, index);
-        final double forecastValue = estimateAR + estimateMA;
-        return forecastValue;
+        return estimateAR + estimateMA;
     }
 
     /**
@@ -106,6 +105,7 @@ public final class ArimaParameterModel {
 
     /**
      * Getter for the number of parameters p
+     *
      * @return number of parameters p
      */
     public int getNumParamsP() {
@@ -182,13 +182,13 @@ public final class ArimaParameterModel {
      */
     public String summary() {
         return "ModelInterface ParamsInterface:" +
-            ", p= " + p +
-            ", d= " + d +
-            ", q= " + q +
-            ", P= " + P +
-            ", D= " + D +
-            ", Q= " + Q +
-            ", m= " + m;
+                ", p= " + p +
+                ", d= " + d +
+                ", q= " + q +
+                ", P= " + P +
+                ", D= " + D +
+                ", Q= " + Q +
+                ", m= " + m;
     }
 
     //==========================================================
@@ -196,9 +196,9 @@ public final class ArimaParameterModel {
 
     /**
      * Setting parameters from a Insight Vector
-     *
+     * <p>
      * It is assumed that the input vector has _np + _nq entries first _np entries are AR-parameters
-     *      and the last _nq entries are MA-parameters
+     * and the last _nq entries are MA-parameters
      *
      * @param paramVec a vector of parameters
      */
@@ -216,9 +216,9 @@ public final class ArimaParameterModel {
 
     /**
      * Create a Insight Vector that contains the parameters.
-     *
+     * <p>
      * It is assumed that the input vector has _np + _nq entries first _np entries are AR-parameters
-     *      and the last _nq entries are MA-parameters
+     * and the last _nq entries are MA-parameters
      *
      * @return Insight Vector of parameters
      */
@@ -253,14 +253,13 @@ public final class ArimaParameterModel {
     }
 
     private BackShift mergeSeasonalWithNonSeasonal(int nonSeasonalLag, int seasonalLag,
-        int seasonalStep) {
+                                                   int seasonalStep) {
         final BackShift nonSeasonal = new BackShift(nonSeasonalLag, true);
         final BackShift seasonal = new BackShift(seasonalLag * seasonalStep, false);
         for (int s = 1; s <= seasonalLag; ++s) {
             seasonal.setIndex(s * seasonalStep, true);
         }
-        final BackShift merged = seasonal.apply(nonSeasonal);
-        return merged;
+        return seasonal.apply(nonSeasonal);
     }
 
     //================================

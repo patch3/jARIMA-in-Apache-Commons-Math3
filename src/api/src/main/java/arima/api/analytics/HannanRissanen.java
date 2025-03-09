@@ -1,38 +1,30 @@
 package arima.api.analytics;
 
-import arima.api.analytics.Matrix;
-import arima.api.analytics.Vector;
+import arima.api.models.ArimaParameterModel;
 
 import java.util.Arrays;
-
-import arima.api.analytics.ForecastUtil;
-import arima.api.models.ArimaParameterModel;
 
 /**
  * Hannan-Rissanen algorithm for estimating ARIMA parameters
  */
 public final class HannanRissanen {
-
-    private HannanRissanen() {
-    }
-
     /**
      * Estimate ARMA(p,q) parameters, i.e. AR-parameters: \phi_1, ... , \phi_p
-     *                                     MA-parameters: \theta_1, ... , \theta_q
+     * MA-parameters: \theta_1, ... , \theta_q
      * Input data is assumed to be stationary, has zero-mean, aligned, and imputed
      *
-     * @param data_orig original data
-     * @param params ARIMA parameters
+     * @param data_orig       original data
+     * @param params          ARIMA parameters
      * @param forecast_length forecast length
-     * @param maxIteration maximum number of iteration
+     * @param maxIteration    maximum number of iteration
      */
     public static void estimateARMA(final double[] data_orig, final ArimaParameterModel params,
-        final int forecast_length, final int maxIteration) {
+                                    final int forecast_length, final int maxIteration) {
         final double[] data = new double[data_orig.length];
         final int total_length = data.length;
         System.arraycopy(data_orig, 0, data, 0, total_length);
         final int r = (params.getDegreeP() > params.getDegreeQ()) ?
-            1 + params.getDegreeP() : 1 + params.getDegreeQ();
+                1 + params.getDegreeP() : 1 + params.getDegreeQ();
         final int length = total_length - forecast_length;
         final int size = length - r;
         if (length < 2 * r) {
@@ -54,14 +46,14 @@ public final class HannanRissanen {
         Vector bestParams = null;
         while (--remainIteration >= 0) {
             final Vector estimatedParams = iterationStep(params, data, errors, matrix, r,
-                length,
-                size);
+                    length,
+                    size);
             params.setParamsFromVector(estimatedParams);
 
             // forecast for validation data and compute RMSE
             final double[] forecasts = ArimaSolver.forecastARMA(params, data, length, data.length);
             final double anotherRMSE = ArimaSolver
-                .computeRMSE(data, forecasts, length, 0, forecast_length);
+                    .computeRMSE(data, forecasts, length, 0, forecast_length);
             // update errors
             final double[] train_forecasts = ArimaSolver.forecastARMA(params, data, r, data.length);
             for (int j = 0; j < size; ++j) {
@@ -76,9 +68,9 @@ public final class HannanRissanen {
     }
 
     private static Vector iterationStep(
-        final ArimaParameterModel params,
-        final double[] data, final double[] errors,
-        final double[][] matrix, final int r, final int length, final int size) {
+            final ArimaParameterModel params,
+            final double[] data, final double[] errors,
+            final double[][] matrix, final int r, final int length, final int size) {
 
         int rowIdx = 0;
         // copy over shifted timeseries data into matrix
@@ -105,20 +97,15 @@ public final class HannanRissanen {
         // obtain least squares solution
         final Vector ztx = zt.timesVector(x);
         final Matrix ztz = zt.computeAAT();
-        final Vector estimatedVector = ztz
-            .solveSPDIntoVector(ztx, ForecastUtil.maxConditionNumber);
-
-        return estimatedVector;
+        return ztz.solveSPDIntoVector(ztx, ForecastUtil.maxConditionNumber);
     }
-    
-    public static double[] fit(final double[] data, final int p) {
 
+    public static double[] fit(final double[] data, final int p) {
         int length = data.length;
         if (length == 0 || p < 1) {
             throw new RuntimeException(
-                "fitYuleWalker - Invalid Parameters" + "length=" + length + ", p = " + p);
+                    "fitYuleWalker - Invalid Parameters" + "length=" + length + ", p = " + p);
         }
-
         double[] r = new double[p + 1];
         for (double aData : data) {
             r[0] += Math.pow(aData, 2);

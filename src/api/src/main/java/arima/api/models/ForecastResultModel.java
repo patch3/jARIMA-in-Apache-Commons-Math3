@@ -1,26 +1,31 @@
 package arima.api.models;
 
 import arima.api.analytics.ArimaSolver;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * ARIMA Forecast Result
  */
+@Getter
 public class ForecastResultModel {
-
-    private double[] forecast;
-    private double[] upperBound;
-    private double[] lowerBound;
     private final double dataVariance;
-    
+
+    private final double[] forecast;
+    @Setter
+    private double[] upperBound;
+    @Setter
+    private double[] lowerBound;
+
     private double modelAIC;
     private double modelRMSE;
+
     private double maxNormalizedVariance;
 
     /**
      * Constructor for ForecastResult
      */
     public ForecastResultModel(final double[] pForecast, final double pDataVariance) {
-
         this.forecast = pForecast;
 
         this.upperBound = new double[pForecast.length];
@@ -30,7 +35,7 @@ public class ForecastResultModel {
         System.arraycopy(pForecast, 0, lowerBound, 0, pForecast.length);
 
         this.dataVariance = pDataVariance;
-        
+
         this.modelAIC = -1;
         this.modelRMSE = -1;
         this.maxNormalizedVariance = -1;
@@ -50,14 +55,14 @@ public class ForecastResultModel {
     }
 
     public double getAIC() {
-		return modelAIC;
-	}
-    
-    void setAIC(double aic) {
-		this.modelAIC = aic;
-	}
+        return modelAIC;
+    }
 
-	/**
+    void setAIC(double aic) {
+        this.modelAIC = aic;
+    }
+
+    /**
      * Getter for Root Mean-Squared Error
      *
      * @return Root Mean-Squared Error
@@ -76,24 +81,15 @@ public class ForecastResultModel {
     }
 
     /**
-     * Getter for Max Normalized Variance
-     *
-     * @return Max Normalized Variance
-     */
-    public double getMaxNormalizedVariance() {
-        return maxNormalizedVariance;
-    }
-
-    /**
      * Compute and set confidence intervals
      *
-     * @param constant confidence interval constant
+     * @param constant          confidence interval constant
      * @param cumulativeSumOfMA cumulative sum of MA coefficients
      * @return Max Normalized Variance
      */
     public double setConfInterval(final double constant, final double[] cumulativeSumOfMA) {
         double maxNormalizedVariance = -1.0;
-        double bound = 0;
+        double bound;
         for (int i = 0; i < forecast.length; i++) {
             bound = constant * modelRMSE * cumulativeSumOfMA[i];
             this.upperBound[i] = this.forecast[i] + bound;
@@ -113,49 +109,6 @@ public class ForecastResultModel {
      */
     public void setSigma2AndPredicationInterval(ArimaParameterModel params) {
         maxNormalizedVariance = ArimaSolver
-            .setSigma2AndPredicationInterval(params, this, forecast.length);
+                .setSigma2AndPredicationInterval(params, this, forecast.length);
     }
-
-    /**
-     * Getter for forecast data
-     *
-     * @return forecast data
-     */
-    public double[] getForecast() {
-        return forecast;
-    }
-    
-
-    /**
-     * Getter for upper confidence bounds
-     *
-     * @return array of upper confidence bounds
-     */
-    public double[] getupperBound() {
-        return upperBound;
-    }
-    
-    /**
-     * Setter for upper bound
-     */
-    public void setupperBound(double[] upperBound) {
-        this.upperBound = upperBound;
-    }
-
-    /**
-     * Getter for lower confidence bounds
-     *
-     * @return array of lower confidence bounds
-     */
-    public double[] getlowerBound() {
-        return lowerBound;
-    }
-    
-    /**
-     * Setter for lower bound
-     */
-    public void setlowerBound(double[] lowerBound) {
-        this.lowerBound = lowerBound;
-    }
-    
 }

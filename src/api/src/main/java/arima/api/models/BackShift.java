@@ -4,7 +4,6 @@ package arima.api.models;
  * Helper class that implements polynomial of back-shift operator
  */
 public final class BackShift {
-
     private final int _degree;  // maximum lag, e.g. AR(1) degree will be 1
     private final boolean[] _indices;
     private int[] _offsets = null;
@@ -52,9 +51,6 @@ public final class BackShift {
         }
         final int maxIdx = 1 + temp;
         final double[] flattened = new double[maxIdx];
-        for (int j = 0; j < maxIdx; ++j) {
-            flattened[j] = 0;
-        }
         for (int j = 0; j < _offsets.length; ++j) {
             flattened[_offsets[j]] = _coeffs[j];
         }
@@ -83,8 +79,6 @@ public final class BackShift {
 
     public void initializeParams(boolean includeZero) {
         _indices[0] = includeZero;
-        _offsets = null;
-        _coeffs = null;
         int nonzeroCount = 0;
         for (int j = 0; j <= _degree; ++j) {
             if (_indices[j]) {
