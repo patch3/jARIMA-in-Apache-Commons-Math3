@@ -144,6 +144,4 @@ public final class BackShift {
         }
         return linearSum;
     }
-
-
 }
