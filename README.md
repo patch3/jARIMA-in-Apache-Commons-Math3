@@ -9,17 +9,9 @@ the [original repository](https://github.com/O1sims/jARIMA).
 
 ## Technology stack
 
-The library uses [ApacheCommonMath3](https://mvnrepository.com/artifact/org.apache.commons/commons-math3) as the backend
-framework, [R](https://www.r-project.org/) as the comparable analytics engine with the
-daemonised [Rserve](https://www.rforge.net/Rserve/) client to process time series data
-and [Angular](https://angular.io/) as the frontend framework. Documentation of the RESTful API service is handled
-by [Swagger](https://swagger.io/). Development is done within a [Docker](https://www.docker.com/). Note the we also
-use [NGINX](https://www.nginx.com/) as the a load balancing reverse proxy.
+The library uses [ApacheCommonMath3](https://mvnrepository.com/artifact/org.apache.commons/commons-math3) The library borrows java for more optimized calculations.
 
 ## Accuracy
-
-The `R` script written in `./analysis/R/compareARIMA.R` is used to test the accuracy and time taken for the ARIMA
-analysis.
 
 In terms of accuracy, the Java and R results converge as the time series data being supplied increases in size.
 
