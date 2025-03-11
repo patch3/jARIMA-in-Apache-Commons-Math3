@@ -12,8 +12,10 @@ public class ArimaModel {
     private final ArimaParameterModel params;
     private final double[] data;
     private final int trainDataSize;
-    @Setter private double rmse;
-    @Setter private double aic;
+    @Setter
+    private double rmse;
+    @Setter
+    private double aic;
 
     /**
      * Constructor for ArimaModel

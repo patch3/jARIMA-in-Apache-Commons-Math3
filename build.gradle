@@ -18,6 +18,9 @@ dependencies {
     // Apache Commons
     implementation 'org.apache.commons:commons-math3:3.6.1'
 
+    // https://mvnrepository.com/artifact/org.assertj/assertj-core
+    testImplementation 'org.assertj:assertj-core:3.27.3'
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }

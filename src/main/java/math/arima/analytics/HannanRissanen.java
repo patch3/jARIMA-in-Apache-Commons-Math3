@@ -1,6 +1,5 @@
 package math.arima.analytics;
 
-import lombok.val;
 import math.arima.models.ArimaParameterModel;
 import org.apache.commons.math3.linear.*;
 

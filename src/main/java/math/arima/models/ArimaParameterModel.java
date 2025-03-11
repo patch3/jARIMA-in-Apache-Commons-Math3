@@ -9,27 +9,17 @@ import org.apache.commons.math3.linear.RealVector;
  * Simple wrapper for ARIMA parameters and fitted states
  */
 public final class ArimaParameterModel {
-    public final int p;
-    public final int d;
-    public final int q;
-    public final int P;
-    public final int D;
-    public final int Q;
-    public final int m;
+    public final int p, d, q, P, D, Q, m;
 
     // ARMA part
-    private final BackShift _opAR;
-    private final BackShift _opMA;
-    private final int _dp;
-    private final int _dq;
-    private final int _np;
-    private final int _nq;
-    private final double[][] _init_seasonal;
-    private final double[][] _diff_seasonal;
-    private final double[][] _integrate_seasonal;
-    private final double[][] _init_non_seasonal;
-    private final double[][] _diff_non_seasonal;
-    private final double[][] _integrate_non_seasonal;
+    private final BackShift opAR, opMA;
+    private final int dp, dq, np, nq;
+    private final double[][] initSeasonal;
+    private final double[][] diffSeasonal;
+    private final double[][] integrateSeasonal;
+    private final double[][] initNonSeasonal;
+    private final double[][] diffNonSeasonal;
+    private final double[][] integrateNonSeasonal;
 
     /**
      * Constructor for ArimaParams
@@ -55,20 +45,20 @@ public final class ArimaParameterModel {
         this.m = m;
 
         // dependent states
-        this._opAR = getNewOperatorAR();
-        this._opMA = getNewOperatorMA();
-        _opAR.initializeParams(false);
-        _opMA.initializeParams(false);
-        this._dp = _opAR.getDegree();
-        this._dq = _opMA.getDegree();
-        this._np = _opAR.numParams();
-        this._nq = _opMA.numParams();
-        this._init_seasonal = (D > 0 && m > 0) ? new double[D][m] : null;
-        this._init_non_seasonal = (d > 0) ? new double[d][1] : null;
-        this._diff_seasonal = (D > 0 && m > 0) ? new double[D][] : null;
-        this._diff_non_seasonal = (d > 0) ? new double[d][] : null;
-        this._integrate_seasonal = (D > 0 && m > 0) ? new double[D][] : null;
-        this._integrate_non_seasonal = (d > 0) ? new double[d][] : null;
+        this.opAR = getNewOperatorAR();
+        this.opMA = getNewOperatorMA();
+        opAR.initializeParams(false);
+        opMA.initializeParams(false);
+        this.dp = opAR.getDegree();
+        this.dq = opMA.getDegree();
+        this.np = opAR.numParams();
+        this.nq = opMA.numParams();
+        this.initSeasonal = (D > 0 && m > 0) ? new double[D][m] : null;
+        this.initNonSeasonal = (d > 0) ? new double[d][1] : null;
+        this.diffSeasonal = (D > 0 && m > 0) ? new double[D][] : null;
+        this.diffNonSeasonal = (d > 0) ? new double[d][] : null;
+        this.integrateSeasonal = (D > 0 && m > 0) ? new double[D][] : null;
+        this.integrateNonSeasonal = (d > 0) ? new double[d][] : null;
     }
 
     /**
@@ -81,8 +71,8 @@ public final class ArimaParameterModel {
      */
     public double forecastOnePointARMA(final double[] data, final double[] errors,
                                        final int index) {
-        final double estimateAR = _opAR.getLinearCombinationFrom(data, index);
-        final double estimateMA = _opMA.getLinearCombinationFrom(errors, index);
+        final double estimateAR = opAR.getLinearCombinationFrom(data, index);
+        final double estimateMA = opMA.getLinearCombinationFrom(errors, index);
         return estimateAR + estimateMA;
     }
 
@@ -92,7 +82,7 @@ public final class ArimaParameterModel {
      * @return degree of p
      */
     public int getDegreeP() {
-        return _dp;
+        return dp;
     }
 
     /**
@@ -101,7 +91,7 @@ public final class ArimaParameterModel {
      * @return degree of q
      */
     public int getDegreeQ() {
-        return _dq;
+        return dq;
     }
 
     /**
@@ -110,7 +100,7 @@ public final class ArimaParameterModel {
      * @return number of parameters p
      */
     public int getNumParamsP() {
-        return _np;
+        return np;
     }
 
     /**
@@ -119,7 +109,7 @@ public final class ArimaParameterModel {
      * @return number of parameters q
      */
     public int getNumParamsQ() {
-        return _nq;
+        return nq;
     }
 
     /**
@@ -128,7 +118,7 @@ public final class ArimaParameterModel {
      * @return parameter offsets of AR
      */
     public int[] getOffsetsAR() {
-        return _opAR.paramOffsets();
+        return opAR.paramOffsets();
     }
 
     /**
@@ -137,7 +127,7 @@ public final class ArimaParameterModel {
      * @return parameter offsets of MA
      */
     public int[] getOffsetsMA() {
-        return _opMA.paramOffsets();
+        return opMA.paramOffsets();
     }
 
     /**
@@ -146,7 +136,7 @@ public final class ArimaParameterModel {
      * @return integrated seasonal data
      */
     public double[] getLastIntegrateSeasonal() {
-        return _integrate_seasonal[D - 1];
+        return integrateSeasonal[D - 1];
     }
 
     /**
@@ -155,7 +145,7 @@ public final class ArimaParameterModel {
      * @return NON-integrated NON-seasonal data
      */
     public double[] getLastIntegrateNonSeasonal() {
-        return _integrate_non_seasonal[d - 1];
+        return integrateNonSeasonal[d - 1];
     }
 
     /**
@@ -164,7 +154,7 @@ public final class ArimaParameterModel {
      * @return differentiate seasonal data
      */
     public double[] getLastDifferenceSeasonal() {
-        return _diff_seasonal[D - 1];
+        return diffSeasonal[D - 1];
     }
 
     /**
@@ -173,7 +163,7 @@ public final class ArimaParameterModel {
      * @return differentiated NON-seasonal data
      */
     public double[] getLastDifferenceNonSeasonal() {
-        return _diff_non_seasonal[d - 1];
+        return diffNonSeasonal[d - 1];
     }
 
     /**
@@ -208,10 +198,10 @@ public final class ArimaParameterModel {
         final int[] offsetsAR = getOffsetsAR();
         final int[] offsetsMA = getOffsetsMA();
         for (int pIdx : offsetsAR) {
-            _opAR.setParam(pIdx, paramVec[index++]);
+            opAR.setParam(pIdx, paramVec[index++]);
         }
         for (int qIdx : offsetsMA) {
-            _opMA.setParam(qIdx, paramVec[index++]);
+            opMA.setParam(qIdx, paramVec[index++]);
         }
     }
 
@@ -219,15 +209,15 @@ public final class ArimaParameterModel {
      * Get parameters as array
      */
     public RealVector getParamsVector() {
-        RealVector params = new ArrayRealVector(_np + _nq);
+        RealVector params = new ArrayRealVector(np + nq);
         int index = 0;
         final int[] offsetsAR = getOffsetsAR();
         final int[] offsetsMA = getOffsetsMA();
         for (int pIdx : offsetsAR) {
-            params.setEntry(index++, _opAR.getParam(pIdx));
+            params.setEntry(index++, opAR.getParam(pIdx));
         }
         for (int qIdx : offsetsMA) {
-            params.setEntry(index++, _opMA.getParam(qIdx));
+            params.setEntry(index++, opMA.getParam(qIdx));
         }
         return params;
     }
@@ -241,11 +231,11 @@ public final class ArimaParameterModel {
     }
 
     public double[] getCurrentARCoefficients() {
-        return _opAR.getCoefficientsFlattened();
+        return opAR.getCoefficientsFlattened();
     }
 
     public double[] getCurrentMACoefficients() {
-        return _opMA.getCoefficientsFlattened();
+        return opMA.getCoefficientsFlattened();
     }
 
     private BackShift mergeSeasonalWithNonSeasonal(int nonSeasonalLag, int seasonalLag,
@@ -265,8 +255,8 @@ public final class ArimaParameterModel {
         double[] current = data;
         for (int j = 0; j < D; ++j) {
             final double[] next = new double[current.length - m];
-            _diff_seasonal[j] = next;
-            final double[] init = _init_seasonal[j];
+            diffSeasonal[j] = next;
+            final double[] init = initSeasonal[j];
             Integrator.differentiate(current, next, init, m);
             current = next;
         }
@@ -276,8 +266,8 @@ public final class ArimaParameterModel {
         double[] current = data;
         for (int j = 0; j < d; ++j) {
             final double[] next = new double[current.length - 1];
-            _diff_non_seasonal[j] = next;
-            final double[] init = _init_non_seasonal[j];
+            diffNonSeasonal[j] = next;
+            final double[] init = initNonSeasonal[j];
             Integrator.differentiate(current, next, init, 1);
             current = next;
         }
@@ -287,8 +277,8 @@ public final class ArimaParameterModel {
         double[] current = data;
         for (int j = 0; j < D; ++j) {
             final double[] next = new double[current.length + m];
-            _integrate_seasonal[j] = next;
-            final double[] init = _init_seasonal[j];
+            integrateSeasonal[j] = next;
+            final double[] init = initSeasonal[j];
             Integrator.integrate(current, next, init, m);
             current = next;
         }
@@ -298,8 +288,8 @@ public final class ArimaParameterModel {
         double[] current = data;
         for (int j = 0; j < d; ++j) {
             final double[] next = new double[current.length + 1];
-            _integrate_non_seasonal[j] = next;
-            final double[] init = _init_non_seasonal[j];
+            integrateNonSeasonal[j] = next;
+            final double[] init = initNonSeasonal[j];
             Integrator.integrate(current, next, init, 1);
             current = next;
         }

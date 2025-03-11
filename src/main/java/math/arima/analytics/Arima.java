@@ -1,6 +1,7 @@
 package math.arima.analytics;
 
 import lombok.val;
+import math.arima.core.ArimaException;
 import math.arima.models.ArimaParameterModel;
 import math.arima.models.ForecastResultModel;
 
@@ -20,7 +21,7 @@ public final class Arima {
             return currentModel;
         } catch (final Exception ex) {
             // failed to build ARIMA model
-            throw new RuntimeException("Failed to build ARIMA forecast: " + ex.getMessage());
+            throw new ArimaException("Failed to build ARIMA forecast: " + ex.getMessage(), ex);
         }
     }
 

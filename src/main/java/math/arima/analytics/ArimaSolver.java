@@ -243,5 +243,6 @@ public final class ArimaSolver {
             double meanStationary,
             boolean hasSeasonalI,
             boolean hasNonSeasonalI
-    ) {}
+    ) {
+    }
 }
