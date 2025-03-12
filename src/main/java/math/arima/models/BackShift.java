@@ -1,10 +1,12 @@
 package math.arima.models;
 
 import lombok.Getter;
+import lombok.val;
 import math.arima.core.ArimaException;
 
 /**
- * Helper class that implements polynomial of back-shift operator
+ * Backshift operator for handling lags in ARIMA.
+ * Implements polynomial operations on time series.
  */
 public final class BackShift {
     @Getter
@@ -16,11 +18,11 @@ public final class BackShift {
     //Constructor
     public BackShift(int degree, boolean initial) {
         if (degree < 0) {
-            throw new RuntimeException("degree must be non-negative");
+            throw new ArimaException("degree must be non-negative");
         }
         this.degree = degree;
         this.indices = new boolean[this.degree + 1];
-        for (int j = 0; j <= this.degree; ++j) {
+        for (var j = 0; j <= this.degree; ++j) {
             this.indices[j] = initial;
         }
         this.indices[0] = true; // zero index must be true all the time
@@ -43,15 +45,15 @@ public final class BackShift {
         if (degree <= 0 || offsets == null || coeffs == null) {
             return new double[0];
         }
-        int temp = -1;
-        for (int offset : offsets) {
+        var temp = -1;
+        for (var offset : offsets) {
             if (offset > temp) {
                 temp = offset;
             }
         }
-        final int maxIdx = 1 + temp;
-        final double[] flattened = new double[maxIdx];
-        for (int j = 0; j < offsets.length; ++j) {
+        val maxIdx = 1 + temp;
+        val flattened = new double[maxIdx];
+        for (var j = 0; j < offsets.length; ++j) {
             flattened[offsets[j]] = coeffs[j];
         }
         return flattened;
@@ -61,15 +63,21 @@ public final class BackShift {
         indices[index] = enable;
     }
 
+    /**
+     * Applies another backshift operator, combining lags.
+     *
+     * @param another the other backshift operator
+     * @return the new combined operator
+     */
     public BackShift apply(BackShift another) {
-        int mergedDegree = degree + another.degree;
-        boolean[] merged = new boolean[mergedDegree + 1];
-        for (int j = 0; j <= mergedDegree; ++j) {
+        var mergedDegree = degree + another.degree;
+        var merged = new boolean[mergedDegree + 1];
+        for (var j = 0; j <= mergedDegree; ++j) {
             merged[j] = false;
         }
-        for (int j = 0; j <= degree; ++j) {
+        for (var j = 0; j <= degree; ++j) {
             if (indices[j]) {
-                for (int k = 0; k <= another.degree; ++k) {
+                for (var k = 0; k <= another.degree; ++k) {
                     merged[j + k] = merged[j + k] || another.indices[k];
                 }
             }
@@ -79,16 +87,16 @@ public final class BackShift {
 
     public void initializeParams(boolean includeZero) {
         indices[0] = includeZero;
-        int nonzeroCount = 0;
-        for (int j = 0; j <= degree; ++j) {
+        var nonzeroCount = 0;
+        for (var j = 0; j <= degree; ++j) {
             if (indices[j]) {
                 ++nonzeroCount;
             }
         }
         offsets = new int[nonzeroCount]; // cannot be 0 as 0-th index is always true
         coeffs = new double[nonzeroCount];
-        int coeffIndex = 0;
-        for (int j = 0; j <= degree; ++j) {
+        var coeffIndex = 0;
+        for (var j = 0; j <= degree; ++j) {
             if (indices[j]) {
                 offsets[coeffIndex] = j;
                 coeffs[coeffIndex] = 0;
@@ -107,7 +115,7 @@ public final class BackShift {
     }
 
     public double getParam(final int paramIndex) {
-        for (int j = 0; j < offsets.length; ++j) {
+        for (var j = 0; j < offsets.length; ++j) {
             if (offsets[j] == paramIndex) {
                 return coeffs[j];
             }
@@ -120,8 +128,8 @@ public final class BackShift {
     }
 
     public void setParam(final int paramIndex, final double paramValue) {
-        int offsetIndex = -1;
-        for (int j = 0; j < offsets.length; ++j) {
+        var offsetIndex = -1;
+        for (var j = 0; j < offsets.length; ++j) {
             if (offsets[j] == paramIndex) {
                 offsetIndex = j;
                 break;
@@ -133,13 +141,9 @@ public final class BackShift {
         coeffs[offsetIndex] = paramValue;
     }
 
-    public void copyParamsToArray(double[] dest) {
-        System.arraycopy(coeffs, 0, dest, 0, coeffs.length);
-    }
-
     public double getLinearCombinationFrom(double[] timeseries, int tsOffset) {
-        double linearSum = 0;
-        for (int j = 0; j < offsets.length; ++j) {
+        var linearSum = 0.0;
+        for (var j = 0; j < offsets.length; ++j) {
             linearSum += timeseries[tsOffset - offsets[j]] * coeffs[j];
         }
         return linearSum;

@@ -1,37 +1,41 @@
 package math.arima.analytics;
 
+import lombok.val;
+import math.arima.core.ArimaException;
+
 /**
- * Pure Helper Class
+ * Helper class for differentiation and integration of time series.
+ * Contains methods for transformations required in ARIMA modeling.
  */
 public class Integrator {
     /**
-     * Общая проверка входных параметров для дифференцирования/интегрирования.
+     * General verification of input parameters for differentiation/integration.
      */
     private static void validateInputs(boolean isDifferentiate,
                                        double[] src, double[] dst,
                                        double[] initial, int d) {
         if (initial == null || initial.length != d || d == 0) {
-            throw new RuntimeException("Invalid initial: size=" + (initial != null ? initial.length : 0) + ", d=" + d);
+            throw new ArimaException("Invalid initial: size=" + (initial != null ? initial.length : 0) + ", d=" + d);
         }
         if (isDifferentiate) {
             if (src == null || src.length <= d) {
-                throw new RuntimeException("Insufficient source size: " + (src != null ? src.length : 0) + ", d=" + d);
+                throw new ArimaException("Insufficient source size: " + (src != null ? src.length : 0) + ", d=" + d);
             }
             if (dst == null || dst.length != src.length - d) {
-                throw new RuntimeException("Invalid destination size: " + (dst != null ? dst.length : 0) + ", src=" + src.length + ", d=" + d);
+                throw new ArimaException("Invalid destination size: " + (dst != null ? dst.length : 0) + ", src=" + src.length + ", d=" + d);
             }
         } else {
             if (dst == null || dst.length <= d) {
-                throw new RuntimeException("Insufficient destination size: " + (dst != null ? dst.length : 0) + ", d=" + d);
+                throw new ArimaException("Insufficient destination size: " + (dst != null ? dst.length : 0) + ", d=" + d);
             }
             if (src == null || src.length != dst.length - d) {
-                throw new RuntimeException("Invalid source size: " + (src != null ? src.length : 0) + ", dst=" + dst.length + ", d=" + d);
+                throw new ArimaException("Invalid source size: " + (src != null ? src.length : 0) + ", dst=" + dst.length + ", d=" + d);
             }
         }
     }
 
     /**
-     * Копирование начальных условий.
+     * Copying the initial conditions.
      */
     private static void copyInitialConditions(double[] src, double[] dst,
                                               double[] initial, int d,
@@ -44,12 +48,13 @@ public class Integrator {
     }
 
     /**
-     * Дифференцирование.
+     * Performs differentiation of a time series.
      *
-     * @param src     source array of data
-     * @param dst     destination array to store data
-     * @param initial initial conditions
-     * @param d       length of initial conditions
+     * @param src     the source array of data
+     * @param dst     the array to store the differentiated data
+     * @param initial the initial conditions (values before differentiation)
+     * @param d       the order of differentiation
+     * @throws ArimaException if the parameters are invalid
      */
     public static void differentiate(final double[] src, final double[] dst,
                                      final double[] initial, final int d) {
@@ -62,12 +67,13 @@ public class Integrator {
     }
 
     /**
-     * Интегрирование.
+     * Performs integration of a time series (inverse of differentiation).
      *
-     * @param src     source array of data
-     * @param dst     destination array to store data
-     * @param initial initial conditions
-     * @param d       length of initial conditions
+     * @param src     the source array of data (after differentiation)
+     * @param dst     the array to store the restored data
+     * @param initial the initial conditions (values before differentiation)
+     * @param d       the order of integration
+     * @throws ArimaException if the parameters are invalid
      */
     public static void integrate(final double[] src, final double[] dst,
                                  final double[] initial, final int d) {
@@ -78,7 +84,6 @@ public class Integrator {
             dst[j] = dst[k] + src[k]; // Накопление результата
         }
     }
-
 
     /**
      * Shifting the input data
@@ -99,15 +104,14 @@ public class Integrator {
      * @return mean
      */
     public static double computeMean(final double[] data) {
-        final int length = data.length;
-        if (length == 0) {
+        if (data.length == 0) {
             return 0.0;
         }
-        double sum = 0.0;
+        var sum = 0.0;
         for (double datum : data) {
             sum += datum;
         }
-        return sum / length;
+        return sum / data.length;
     }
 
     /**
@@ -117,12 +121,12 @@ public class Integrator {
      * @return variance
      */
     public static double computeVariance(final double[] data) {
-        double variance = 0.0;
-        double mean = computeMean(data);
+        val mean = computeMean(data);
+        var variance = 0.0;
         for (double datum : data) {
             final double diff = datum - mean;
             variance += diff * diff;
         }
-        return variance / (double) (data.length - 1);
+        return variance / (data.length - 1.0);
     }
 }

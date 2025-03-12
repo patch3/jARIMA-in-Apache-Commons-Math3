@@ -2,10 +2,11 @@ package math.arima.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.val;
 import math.arima.analytics.ArimaSolver;
 
 /**
- * ARIMA Forecast Result
+ * ARIMA forecast result. Contains point forecasts and confidence intervals.
  */
 @Getter
 public class ForecastResultModel {
@@ -16,9 +17,10 @@ public class ForecastResultModel {
     private double[] upperBound;
     @Setter
     private double[] lowerBound;
-
-    private double modelAIC;
-    private double modelRMSE;
+    @Setter
+    private double aic;
+    @Setter
+    private double rmse;
 
     private double maxNormalizedVariance;
 
@@ -36,8 +38,8 @@ public class ForecastResultModel {
 
         this.dataVariance = pDataVariance;
 
-        this.modelAIC = -1;
-        this.modelRMSE = -1;
+        this.aic = -1;
+        this.rmse = -1;
         this.maxNormalizedVariance = -1;
     }
 
@@ -54,47 +56,22 @@ public class ForecastResultModel {
         }
     }
 
-    public double getAIC() {
-        return modelAIC;
-    }
-
-    void setAIC(double aic) {
-        this.modelAIC = aic;
-    }
 
     /**
-     * Getter for Root Mean-Squared Error
+     * Updates the confidence intervals based on the given confidence level.
      *
-     * @return Root Mean-Squared Error
-     */
-    public double getRMSE() {
-        return this.modelRMSE;
-    }
-
-    /**
-     * Setter for Root Mean-Squared Error
-     *
-     * @param rmse Root Mean-Squared Error
-     */
-    void setRMSE(double rmse) {
-        this.modelRMSE = rmse;
-    }
-
-    /**
-     * Compute and set confidence intervals
-     *
-     * @param constant          confidence interval constant
-     * @param cumulativeSumOfMA cumulative sum of MA coefficients
-     * @return Max Normalized Variance
+     * @param constant          the constant for the confidence level (e.g., 1.96 for 95%)
+     * @param cumulativeSumOfMA the cumulative sums of MA coefficients
+     * @return the maximum normalized variance
      */
     public double setConfInterval(final double constant, final double[] cumulativeSumOfMA) {
         double maxNormalizedVariance = -1.0;
         double bound;
         for (int i = 0; i < forecast.length; i++) {
-            bound = constant * modelRMSE * cumulativeSumOfMA[i];
+            bound = constant * rmse * cumulativeSumOfMA[i];
             this.upperBound[i] = this.forecast[i] + bound;
             this.lowerBound[i] = this.forecast[i] - bound;
-            final double normalizedVariance = getNormalizedVariance(Math.pow(bound, 2));
+            val normalizedVariance = getNormalizedVariance(Math.pow(bound, 2));
             if (normalizedVariance > maxNormalizedVariance) {
                 maxNormalizedVariance = normalizedVariance;
             }

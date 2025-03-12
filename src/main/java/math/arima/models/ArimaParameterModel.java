@@ -1,12 +1,13 @@
 package math.arima.models;
 
 
+import lombok.val;
 import math.arima.analytics.Integrator;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 
 /**
- * Simple wrapper for ARIMA parameters and fitted states
+ * ARIMA parameter model. Stores coefficients and differentiation/integration state.
  */
 public final class ArimaParameterModel {
     public final int p, d, q, P, D, Q, m;
@@ -71,8 +72,8 @@ public final class ArimaParameterModel {
      */
     public double forecastOnePointARMA(final double[] data, final double[] errors,
                                        final int index) {
-        final double estimateAR = opAR.getLinearCombinationFrom(data, index);
-        final double estimateMA = opMA.getLinearCombinationFrom(errors, index);
+        val estimateAR = opAR.getLinearCombinationFrom(data, index);
+        val estimateMA = opMA.getLinearCombinationFrom(errors, index);
         return estimateAR + estimateMA;
     }
 
@@ -186,17 +187,14 @@ public final class ArimaParameterModel {
     // MUTABLE STATES
 
     /**
-     * Setting parameters from a Insight Vector
-     * <p>
-     * It is assumed that the input vector has _np + _nq entries first _np entries are AR-parameters
-     * and the last _nq entries are MA-parameters
+     * Updates the model parameters from a vector of coefficients.
      *
-     * @param paramVec a vector of parameters
+     * @param paramVec the parameter vector in the order: AR coefficients, then MA coefficients
      */
     public void setParamsFromVector(final double[] paramVec) {
-        int index = 0;
-        final int[] offsetsAR = getOffsetsAR();
-        final int[] offsetsMA = getOffsetsMA();
+        val offsetsAR = getOffsetsAR();
+        val offsetsMA = getOffsetsMA();
+        var index = 0;
         for (int pIdx : offsetsAR) {
             opAR.setParam(pIdx, paramVec[index++]);
         }
@@ -206,13 +204,15 @@ public final class ArimaParameterModel {
     }
 
     /**
-     * Get parameters as array
+     * Returns the current model parameters as a vector.
+     *
+     * @return the vector in the format [AR coefficients, MA coefficients]
      */
     public RealVector getParamsVector() {
-        RealVector params = new ArrayRealVector(np + nq);
-        int index = 0;
-        final int[] offsetsAR = getOffsetsAR();
-        final int[] offsetsMA = getOffsetsMA();
+        val params = new ArrayRealVector(np + nq);
+        val offsetsAR = getOffsetsAR();
+        val offsetsMA = getOffsetsMA();
+        var index = 0;
         for (int pIdx : offsetsAR) {
             params.setEntry(index++, opAR.getParam(pIdx));
         }
@@ -240,9 +240,9 @@ public final class ArimaParameterModel {
 
     private BackShift mergeSeasonalWithNonSeasonal(int nonSeasonalLag, int seasonalLag,
                                                    int seasonalStep) {
-        final BackShift nonSeasonal = new BackShift(nonSeasonalLag, true);
-        final BackShift seasonal = new BackShift(seasonalLag * seasonalStep, false);
-        for (int s = 1; s <= seasonalLag; ++s) {
+        val nonSeasonal = new BackShift(nonSeasonalLag, true);
+        val seasonal = new BackShift(seasonalLag * seasonalStep, false);
+        for (var s = 1; s <= seasonalLag; ++s) {
             seasonal.setIndex(s * seasonalStep, true);
         }
         return seasonal.apply(nonSeasonal);
@@ -252,44 +252,44 @@ public final class ArimaParameterModel {
     // Differentiation and Integration
 
     public void differentiateSeasonal(final double[] data) {
-        double[] current = data;
-        for (int j = 0; j < D; ++j) {
-            final double[] next = new double[current.length - m];
+        var current = data;
+        for (var j = 0; j < D; ++j) {
+            val next = new double[current.length - m];
             diffSeasonal[j] = next;
-            final double[] init = initSeasonal[j];
+            val init = initSeasonal[j];
             Integrator.differentiate(current, next, init, m);
             current = next;
         }
     }
 
     public void differentiateNonSeasonal(final double[] data) {
-        double[] current = data;
+        var current = data;
         for (int j = 0; j < d; ++j) {
-            final double[] next = new double[current.length - 1];
+            val next = new double[current.length - 1];
             diffNonSeasonal[j] = next;
-            final double[] init = initNonSeasonal[j];
+            val init = initNonSeasonal[j];
             Integrator.differentiate(current, next, init, 1);
             current = next;
         }
     }
 
     public void integrateSeasonal(final double[] data) {
-        double[] current = data;
-        for (int j = 0; j < D; ++j) {
-            final double[] next = new double[current.length + m];
+        var current = data;
+        for (var j = 0; j < D; ++j) {
+            val next = new double[current.length + m];
             integrateSeasonal[j] = next;
-            final double[] init = initSeasonal[j];
+            val init = initSeasonal[j];
             Integrator.integrate(current, next, init, m);
             current = next;
         }
     }
 
     public void integrateNonSeasonal(final double[] data) {
-        double[] current = data;
-        for (int j = 0; j < d; ++j) {
-            final double[] next = new double[current.length + 1];
+        var current = data;
+        for (var j = 0; j < d; ++j) {
+            val next = new double[data.length + 1];
             integrateNonSeasonal[j] = next;
-            final double[] init = initNonSeasonal[j];
+            val init = initNonSeasonal[j];
             Integrator.integrate(current, next, init, 1);
             current = next;
         }

@@ -12,8 +12,8 @@ public final class Arima {
             ForecastResultModel currentModel = null;
             // loop over initial models (Hyndman and Khandakar, 2008:11)
             // and select best model
-            for (int p = 0; p <= 2; p++) {
-                for (int q = 0; q <= 2; q++) {
+            for (var p = 0; p <= 2; p++) {
+                for (var q = 0; q <= 2; q++) {
                     currentModel = forecast(currentModel, data, forecastSize, p, q, 1, 1);
                 }
             }
@@ -35,17 +35,17 @@ public final class Arima {
         // compute RMSE to be used in confidence interval computation
         val aicValue = ArimaSolver.computeAICValidation(
                 data, ForecastUtil.testSetPercentage, paramsForecast);
-        if (currentModel == null || aicValue < currentModel.getAIC()) {
+        if (currentModel == null || aicValue < currentModel.getAic()) {
             // set the AIC
             fittedModel.setAic(aicValue);
 
             // compute RMSE to be used in confidence interval computation
-            final double rmseValue = ArimaSolver.computeRMSEValidation(
+            val rmseValue = ArimaSolver.computeRMSEValidation(
                     data, ForecastUtil.testSetPercentage, paramsForecast);
             // set the RMSE
             fittedModel.setRmse(rmseValue);
             // run forecast model
-            final ForecastResultModel forecastResult = fittedModel.forecast(forecastSize);
+            val forecastResult = fittedModel.forecast(forecastSize);
             // populate confidence interval
             forecastResult.setSigma2AndPredicationInterval(fittedModel.getParams());
             // return new forecast model

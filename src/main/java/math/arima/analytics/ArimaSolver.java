@@ -1,36 +1,51 @@
 package math.arima.analytics;
 
+import lombok.val;
+import math.arima.core.ArimaException;
 import math.arima.models.ArimaModel;
 import math.arima.models.ArimaParameterModel;
 import math.arima.models.ForecastResultModel;
 
+
+/**
+ * Main solver for ARIMA. Contains forecasting and quality evaluation methods.
+ */
 public final class ArimaSolver {
     private static final int maxIterationForHannanRissanen = 5;
 
+    /**
+     * Performs forecasting for a stationary ARMA model.
+     *
+     * @param params          the model parameters
+     * @param dataStationary  the stationary data
+     * @param startIndex      the start index for forecasting
+     * @param endIndex        the end index for forecasting
+     * @return an array of forecasted values
+     */
     public static double[] forecastARMA(final ArimaParameterModel params, final double[] dataStationary,
                                         final int startIndex, final int endIndex) {
-        final double[] errors = new double[endIndex];
-        final double[] data = new double[endIndex];
+        val errors = new double[endIndex];
+        val data = new double[endIndex];
         System.arraycopy(dataStationary, 0, data, 0, startIndex);
 
-        final int forecast_len = endIndex - startIndex;
-        final double[] forecasts = new double[forecast_len];
-        final int _dp = params.getDegreeP();
-        final int _dq = params.getDegreeQ();
-        final int start_idx = Math.max(_dp, _dq);
+        val forecast_len = endIndex - startIndex;
+        val forecasts = new double[forecast_len];
+        val dp = params.getDegreeP();
+        val dq = params.getDegreeQ();
+        val start_idx = Math.max(dp, dq);
 
-        for (int j = 0; j < start_idx; ++j) {
+        for (var j = 0; j < start_idx; ++j) {
             errors[j] = 0;
         }
         // populate errors and forecasts
-        for (int j = start_idx; j < startIndex; ++j) {
-            final double forecast = params.forecastOnePointARMA(data, errors, j);
-            final double error = data[j] - forecast;
+        for (var j = start_idx; j < startIndex; ++j) {
+            val forecast = params.forecastOnePointARMA(data, errors, j);
+            val error = data[j] - forecast;
             errors[j] = error;
         }
         // now we can forecast
-        for (int j = startIndex; j < endIndex; ++j) {
-            final double forecast = params.forecastOnePointARMA(data, errors, j);
+        for (var j = startIndex; j < endIndex; ++j) {
+            val forecast = params.forecastOnePointARMA(data, errors, j);
             data[j] = forecast;
             errors[j] = 0;
             forecasts[j - startIndex] = forecast;
@@ -41,50 +56,45 @@ public final class ArimaSolver {
 
     public static ForecastResultModel forecastARIMA(final ArimaParameterModel params, final double[] data,
                                                     final int forecastStartIndex, final int forecastEndIndex) {
-        final int forecast_length = validateAndGetForecastLength(params, data, forecastStartIndex, forecastEndIndex);
-        final double[] forecast = new double[forecast_length];
-        DifferentiationResult diffResult = prepareDifferentiation(params, data, forecastStartIndex);
+        val forecastLength = validateAndGetForecastLength(params, data, forecastStartIndex, forecastEndIndex);
+        val forecast = new double[forecastLength];
+        val diffResult = prepareDifferentiation(params, data, forecastStartIndex);
 
-        double[] dataStationary = diffResult.dataStationary;
-        final double meanStationary = diffResult.meanStationary;
-        final boolean hasSeasonalI = diffResult.hasSeasonalI;
-        final boolean hasNonSeasonalI = diffResult.hasNonSeasonalI;
-        final double dataVariance = Integrator.computeVariance(dataStationary);
         //==========================================
 
         //==========================================
         // FORECAST
-        final double[] forecast_stationary = forecastARMA(params, dataStationary,
-                dataStationary.length,
-                dataStationary.length + forecast_length);
+        val forecastStationary = forecastARMA(params, diffResult.dataStationary,
+                diffResult.dataStationary.length,
+                diffResult.dataStationary.length + forecastLength);
 
-        final double[] dataForecastStationary = new double[dataStationary.length + forecast_length];
+        val dataForecastStationary = new double[diffResult.dataStationary.length + forecastLength];
 
-        System.arraycopy(dataStationary, 0, dataForecastStationary, 0, dataStationary.length);
-        System.arraycopy(forecast_stationary, 0, dataForecastStationary, dataStationary.length,
-                forecast_stationary.length);
+        System.arraycopy(diffResult.dataStationary, 0, dataForecastStationary, 0, diffResult.dataStationary.length);
+        System.arraycopy(forecastStationary, 0, dataForecastStationary, diffResult.dataStationary.length,
+                forecastStationary.length);
         // END OF FORECAST
         //==========================================
 
         //=========== UN-CENTERING =================
-        Integrator.shift(dataForecastStationary, meanStationary);
+        Integrator.shift(dataForecastStationary, diffResult.meanStationary);
         //==========================================
 
         //===========================================
         // INTEGRATE
-        double[] forecast_merged = integrate(params, dataForecastStationary, hasSeasonalI, hasNonSeasonalI);
+        val forecast_merged = integrate(params, dataForecastStationary, diffResult.hasSeasonalI, diffResult.hasNonSeasonalI);
         // END OF INTEGRATE
         //===========================================
-        System.arraycopy(forecast_merged, forecastStartIndex, forecast, 0, forecast_length);
+        System.arraycopy(forecast_merged, forecastStartIndex, forecast, 0, forecastLength);
 
-        return new ForecastResultModel(forecast, dataVariance);
+        return new ForecastResultModel(forecast, Integrator.computeVariance(diffResult.dataStationary));
     }
 
     public static ArimaModel estimateARIMA(final ArimaParameterModel params, final double[] data,
                                            final int forecastStartIndex, final int forecastEndIndex) {
-        final int forecast_length = validateAndGetForecastLength(params, data, forecastStartIndex, forecastEndIndex);
-        DifferentiationResult diffResult = prepareDifferentiation(params, data, forecastStartIndex);
-        double[] data_stationary = diffResult.dataStationary;
+        val forecast_length = validateAndGetForecastLength(params, data, forecastStartIndex, forecastEndIndex);
+        val diffResult = prepareDifferentiation(params, data, forecastStartIndex);
+        val data_stationary = diffResult.dataStationary;
         //==========================================
         // FORECAST
         HannanRissanen.estimateARMA(data_stationary, params, forecast_length, maxIterationForHannanRissanen);
@@ -97,8 +107,8 @@ public final class ArimaSolver {
     private static int validateAndGetForecastLength(ArimaParameterModel params, double[] data,
                                                     int forecastStartIndex, int forecastEndIndex) {
         if (!checkARIMADataLength(params, data, forecastStartIndex, forecastEndIndex)) {
-            final int initialConditionSize = params.d + params.D * params.m;
-            throw new RuntimeException(
+            val initialConditionSize = params.d + params.D * params.m;
+            throw new ArimaException(
                     "not enough data for ARIMA. needed at least " + initialConditionSize +
                             ", have " + data.length + ", startIndex=" + forecastStartIndex +
                             ", endIndex=" + forecastEndIndex
@@ -113,14 +123,14 @@ public final class ArimaSolver {
     private static DifferentiationResult prepareDifferentiation(ArimaParameterModel params,
                                                                 double[] data,
                                                                 int forecastStartIndex) {
-        final double[] dataTrain = new double[forecastStartIndex];
+        val dataTrain = new double[forecastStartIndex];
         System.arraycopy(data, 0, dataTrain, 0, forecastStartIndex);
 
-        final boolean hasSeasonalI = params.D > 0 && params.m > 0;
-        final boolean hasNonSeasonalI = params.d > 0;
-        double[] dataStationary = differentiate(params, dataTrain, hasSeasonalI, hasNonSeasonalI);
+        val hasSeasonalI = params.D > 0 && params.m > 0;
+        val hasNonSeasonalI = params.d > 0;
+        val dataStationary = differentiate(params, dataTrain, hasSeasonalI, hasNonSeasonalI);
 
-        final double meanStationary = Integrator.computeMean(dataStationary);
+        val meanStationary = Integrator.computeMean(dataStationary);
         Integrator.shift(dataStationary, -meanStationary);
 
         return new DifferentiationResult(dataStationary, meanStationary, hasSeasonalI, hasNonSeasonalI);
@@ -167,24 +177,33 @@ public final class ArimaSolver {
         return forecast_merged;
     }
 
+    /**
+     * Computes the Root Mean Squared Error (RMSE) between two arrays.
+     *
+     * @param left           the reference values
+     * @param right          the forecasted values
+     * @param leftIndexOffset the offset in the reference array
+     * @param startIndex     the start index for comparison
+     * @param endIndex       the end index for comparison
+     * @return the RMSE value
+     */
     public static double computeRMSE(final double[] left, final double[] right,
                                      final int leftIndexOffset,
                                      final int startIndex, final int endIndex) {
-        double square_sum = 0.0;
-
-        for (int i = startIndex; i < endIndex; ++i) {
-            final double error = left[i + leftIndexOffset] - right[i];
+        var square_sum = 0.0;
+        for (var i = startIndex; i < endIndex; ++i) {
+            val error = left[i + leftIndexOffset] - right[i];
             square_sum += error * error;
         }
-        return Math.sqrt(square_sum / (double) (endIndex - startIndex));
+        return Math.sqrt(square_sum / (endIndex - startIndex));
     }
 
     public static double computeAIC(final double[] left, final double[] right,
                                     final int leftIndexOffset,
                                     final int startIndex, final int endIndex) {
-        double error_sum = 0.0;
-        for (int i = startIndex; i < endIndex; ++i) {
-            final double error = left[i + leftIndexOffset] - right[i];
+        var error_sum = 0.0;
+        for (var i = startIndex; i < endIndex; ++i) {
+            val error = left[i + leftIndexOffset] - right[i];
             error_sum += Math.abs(error);
         }
         if (error_sum == 0.0) {
@@ -196,30 +215,30 @@ public final class ArimaSolver {
 
     public static double computeRMSEValidation(final double[] data,
                                                final double testDataPercentage, ArimaParameterModel params) {
-        int testDataLength = (int) (data.length * testDataPercentage);
-        int trainingDataEndIndex = data.length - testDataLength;
+        val testDataLength = (int) (data.length * testDataPercentage);
+        val trainingDataEndIndex = data.length - testDataLength;
 
-        final ArimaModel result = estimateARIMA(params, data, trainingDataEndIndex, data.length);
+        val arimaModel = estimateARIMA(params, data, trainingDataEndIndex, data.length);
 
-        final double[] forecast = result.forecast(testDataLength).getForecast();
+        val forecast = arimaModel.forecast(testDataLength).getForecast();
         return computeRMSE(data, forecast, trainingDataEndIndex, 0, forecast.length);
     }
 
     public static double computeAICValidation(final double[] data,
                                               final double testDataPercentage, ArimaParameterModel params) {
-        int testDataLength = (int) (data.length * testDataPercentage);
-        int trainingDataEndIndex = data.length - testDataLength;
+        val testDataLength = (int) (data.length * testDataPercentage);
+        val trainingDataEndIndex = data.length - testDataLength;
 
-        final ArimaModel result = estimateARIMA(params, data, trainingDataEndIndex,
+        val arimaModel = estimateARIMA(params, data, trainingDataEndIndex,
                 data.length);
-        final double[] forecast = result.forecast(testDataLength).getForecast();
+        val forecast = arimaModel.forecast(testDataLength).getForecast();
         return computeAIC(data, forecast, trainingDataEndIndex, 0, forecast.length);
     }
 
     public static double setSigma2AndPredicationInterval(final ArimaParameterModel params,
                                                          final ForecastResultModel forecastResult, final int forecastSize) {
-        final double[] coeffs_AR = params.getCurrentARCoefficients();
-        final double[] coeffs_MA = params.getCurrentMACoefficients();
+        val coeffs_AR = params.getCurrentARCoefficients();
+        val coeffs_MA = params.getCurrentMACoefficients();
         return forecastResult
                 .setConfInterval(ForecastUtil.confidence_constant_95pct,
                         ForecastUtil.getCumulativeSumOfCoeff(
@@ -229,14 +248,13 @@ public final class ArimaSolver {
     private static boolean checkARIMADataLength(ArimaParameterModel params, double[] data, int startIndex,
                                                 int endIndex) {
         boolean result = true;
-        final int initialConditionSize = params.d + params.D * params.m;
+        val initialConditionSize = params.d + params.D * params.m;
         if (data.length < initialConditionSize || startIndex < initialConditionSize
                 || endIndex <= startIndex) {
             result = false;
         }
         return result;
     }
-
 
     private record DifferentiationResult(
             double[] dataStationary,

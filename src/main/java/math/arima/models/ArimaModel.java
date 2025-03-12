@@ -2,6 +2,7 @@ package math.arima.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.val;
 import math.arima.analytics.ArimaSolver;
 
 /**
@@ -37,11 +38,11 @@ public class ArimaModel {
      * @return forecast result
      */
     public ForecastResultModel forecast(final int forecastSize) {
-        ForecastResultModel forecastResult = ArimaSolver.forecastARIMA(
+        val forecastResult = ArimaSolver.forecastARIMA(
                 params, data, trainDataSize, trainDataSize + forecastSize
         );
-        forecastResult.setAIC(this.aic);
-        forecastResult.setRMSE(this.rmse);
+        forecastResult.setAic(this.aic);
+        forecastResult.setRmse(this.rmse);
         return forecastResult;
     }
 }

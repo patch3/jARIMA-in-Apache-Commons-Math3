@@ -1,6 +1,7 @@
 package math.arima;
 
 
+import lombok.val;
 import math.arima.models.ArimaModel;
 import math.arima.models.ArimaParameterModel;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,7 @@ public class ArimaModelTest {
     @Test
     public void testForecast() {
         ArimaParameterModel params = new ArimaParameterModel(1, 0, 1, 0, 0, 0, 1);
-        double[] data = {100.0, 101.0, 102.0};
+        val data = new double[]{100.0, 101.0, 102.0};
         ArimaModel model = new ArimaModel(params, data, 2);
         assertNotNull(model.forecast(1));
     }

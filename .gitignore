@@ -8,6 +8,7 @@
 src/api/target/*
 .mvn/
 !.mvn/wrapper/maven-wrapper.jar
+.gradle/
 
 ### API bin ##
 src/api/bin/*
@@ -38,6 +39,7 @@ src/api/bin/*
 ### Mobile Tools for Java (J2ME) ###
 .mtj.tmp/
 
+
 ### Package Files ###
 *.jar
 *.war
@@ -49,12 +51,3 @@ src/api/bin/*
 
 ### virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml ###
 hs_err_pid*
-
-# Javascript dependencies
-node_modules/
-
-# Auto-generated JS
-src/webserver/gui/*.js
-src/webserver/gui/**/*.js
-!src/webserver/gui/assets/*.js
-!src/webserver/gui/assets/js/*.js

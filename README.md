@@ -9,7 +9,8 @@ the [original repository](https://github.com/O1sims/jARIMA).
 
 ## Technology stack
 
-The library uses [ApacheCommonMath3](https://mvnrepository.com/artifact/org.apache.commons/commons-math3) The library borrows java for more optimized calculations.
+The library uses [ApacheCommonMath3](https://mvnrepository.com/artifact/org.apache.commons/commons-math3) The library
+borrows java for more optimized calculations.
 
 ## Accuracy
 
