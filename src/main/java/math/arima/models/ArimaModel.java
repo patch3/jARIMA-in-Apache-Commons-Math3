@@ -32,7 +32,7 @@ public class ArimaModel {
     }
 
     /**
-     * Forecast data base on training data and forecast size.
+     * Forecast database on training data and forecast size.
      *
      * @param forecastSize size of forecast
      * @return forecast result
