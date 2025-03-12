@@ -1,7 +1,7 @@
 package math.arima;
 
 import lombok.val;
-import math.arima.models.BackShift;
+import math.series.time.arima.models.BackShift;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;

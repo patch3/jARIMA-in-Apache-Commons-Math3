@@ -1,8 +1,8 @@
-package math.arima.analytics;
+package math.series.time.arima.analytics;
 
 import lombok.val;
-import math.arima.core.ArimaException;
-import math.arima.models.ArimaParameterModel;
+import math.series.time.arima.core.ArimaException;
+import math.series.time.arima.models.ArimaParameterModel;
 import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.stat.correlation.Covariance;
 
@@ -124,10 +124,8 @@ public final class HannanRissanen {
 
     public static RealVector fit(final double[] data, final int p) {
         val rVector = getVector(data, p);
-
         // Creating the Greenhouse Matrix
         val toeplitz = ForecastUtil.initToeplitz(rVector.getSubVector(0, p).toArray());
-
         // Solving a system with a check for degeneracy
         try {
             return new CholeskyDecomposition(toeplitz).getSolver().solve(rVector.getSubVector(1, p));
@@ -141,7 +139,6 @@ public final class HannanRissanen {
         if (length == 0 || p < 1) {
             throw new RuntimeException("Invalid parameters: length=" + length + ", p=" + p);
         }
-
         // Correct calculation of autocovariance
         val dataMatrix = new Array2DRowRealMatrix(new double[][]{data});
         val covariance = new Covariance(dataMatrix);

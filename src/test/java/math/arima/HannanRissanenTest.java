@@ -2,9 +2,9 @@ package math.arima;
 
 
 import lombok.val;
-import math.arima.analytics.HannanRissanen;
-import math.arima.core.ArimaException;
-import math.arima.models.ArimaParameterModel;
+import math.series.time.arima.analytics.HannanRissanen;
+import math.series.time.arima.core.ArimaException;
+import math.series.time.arima.models.ArimaParameterModel;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

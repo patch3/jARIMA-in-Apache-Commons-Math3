@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'math.arima'
-version = '1.0-SNAPSHOT'
+version = '2.1.0'
 
 repositories {
     mavenCentral()
@@ -30,6 +30,7 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_21
 }
+
 
 test {
     useJUnitPlatform()

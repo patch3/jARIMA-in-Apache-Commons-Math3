@@ -2,8 +2,8 @@ package math.arima;
 
 
 import lombok.val;
-import math.arima.analytics.ArimaSolver;
-import math.arima.models.ArimaParameterModel;
+import math.series.time.arima.analytics.ArimaSolver;
+import math.series.time.arima.models.ArimaParameterModel;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

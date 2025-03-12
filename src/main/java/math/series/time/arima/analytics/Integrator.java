@@ -1,7 +1,7 @@
-package math.arima.analytics;
+package math.series.time.arima.analytics;
 
 import lombok.val;
-import math.arima.core.ArimaException;
+import math.series.time.arima.core.ArimaException;
 
 /**
  * Helper class for differentiation and integration of time series.
@@ -13,7 +13,7 @@ public class Integrator {
      */
     private static void validateInputs(boolean isDifferentiate,
                                        double[] src, double[] dst,
-                                       double[] initial, int d) {
+                                       double[] initial, int d) throws ArimaException {
         if (initial == null || initial.length != d || d == 0) {
             throw new ArimaException("Invalid initial: size=" + (initial != null ? initial.length : 0) + ", d=" + d);
         }
@@ -57,7 +57,7 @@ public class Integrator {
      * @throws ArimaException if the parameters are invalid
      */
     public static void differentiate(final double[] src, final double[] dst,
-                                     final double[] initial, final int d) {
+                                     final double[] initial, final int d) throws ArimaException {
         validateInputs(true, src, dst, initial, d);
         copyInitialConditions(src, dst, initial, d, true);
 
@@ -76,7 +76,7 @@ public class Integrator {
      * @throws ArimaException if the parameters are invalid
      */
     public static void integrate(final double[] src, final double[] dst,
-                                 final double[] initial, final int d) {
+                                 final double[] initial, final int d) throws ArimaException {
         validateInputs(false, src, dst, initial, d);
         copyInitialConditions(src, dst, initial, d, false);
 
@@ -124,7 +124,7 @@ public class Integrator {
         val mean = computeMean(data);
         var variance = 0.0;
         for (double datum : data) {
-            final double diff = datum - mean;
+            val diff = datum - mean;
             variance += diff * diff;
         }
         return variance / (data.length - 1.0);

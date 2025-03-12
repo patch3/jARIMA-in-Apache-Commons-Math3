@@ -1,9 +1,9 @@
-package math.arima.models;
+package math.series.time.arima.models;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
-import math.arima.analytics.ArimaSolver;
+import math.series.time.arima.analytics.ArimaSolver;
 
 /**
  * ARIMA forecast result. Contains point forecasts and confidence intervals.

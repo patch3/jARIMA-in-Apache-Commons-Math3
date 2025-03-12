@@ -1,9 +1,9 @@
 package math.arima;
 
 import lombok.val;
-import math.arima.analytics.Arima;
-import math.arima.analytics.Integrator;
-import math.arima.models.ForecastResultModel;
+import math.series.time.arima.analytics.Arima;
+import math.series.time.arima.analytics.Integrator;
+import math.series.time.arima.models.ForecastResultModel;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,7 +14,7 @@ public class ArimaIntegrationTest {
         val data = new double[]{10.1, 20.3, 30.5, 40.7, 50.9, 61.1, 71.3, 81.5, 91.7, 101.9, 112.1, 122.3};
         val forecastSize = 3;
 
-        ForecastResultModel result = Arima.forecast_arima(data, forecastSize);
+        ForecastResultModel result = Arima.forecast(data, forecastSize);
 
         assertThat(result.getForecast()).hasSize(forecastSize);
         assertThat(result.getUpperBound()).hasSameSizeAs(result.getForecast());
@@ -28,7 +28,7 @@ public class ArimaIntegrationTest {
                 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, // Season 1
                 340, 360, 380, 400, 420, 440, 460, 480, 500, 520, 540, 560  // Season 2
         };
-        ForecastResultModel result = Arima.forecast_arima(seasonalData, 2);
+        ForecastResultModel result = Arima.forecast(seasonalData, 2);
         assertThat(result.getForecast()).isNotEmpty();
     }
 

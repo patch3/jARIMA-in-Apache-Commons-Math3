@@ -1,4 +1,4 @@
-package math.arima.core;
+package math.series.time.arima.core;
 
 public class ArimaException extends RuntimeException {
     public ArimaException(String message) {

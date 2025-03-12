@@ -1,8 +1,8 @@
-package math.arima.models;
+package math.series.time.arima.models;
 
 
 import lombok.val;
-import math.arima.analytics.Integrator;
+import math.series.time.arima.analytics.Integrator;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 

@@ -1,10 +1,11 @@
-package math.arima.analytics;
+package math.series.time.arima.analytics;
 
 import lombok.val;
-import math.arima.core.ArimaException;
-import math.arima.models.ArimaModel;
-import math.arima.models.ArimaParameterModel;
-import math.arima.models.ForecastResultModel;
+import math.series.time.arima.core.ArimaException;
+import math.series.time.arima.models.ArimaModel;
+import math.series.time.arima.models.ArimaParameterModel;
+import math.series.time.arima.models.ForecastResultModel;
+import org.apache.commons.math3.util.FastMath;
 
 
 /**
@@ -55,7 +56,7 @@ public final class ArimaSolver {
     }
 
     public static ForecastResultModel forecastARIMA(final ArimaParameterModel params, final double[] data,
-                                                    final int forecastStartIndex, final int forecastEndIndex) {
+                                                    final int forecastStartIndex, final int forecastEndIndex) throws ArimaException {
         val forecastLength = validateAndGetForecastLength(params, data, forecastStartIndex, forecastEndIndex);
         val forecast = new double[forecastLength];
         val diffResult = prepareDifferentiation(params, data, forecastStartIndex);
@@ -105,7 +106,8 @@ public final class ArimaSolver {
      * Data validation and calculation of forecast length
      */
     private static int validateAndGetForecastLength(ArimaParameterModel params, double[] data,
-                                                    int forecastStartIndex, int forecastEndIndex) {
+                                                    int forecastStartIndex, int forecastEndIndex
+    ) throws ArimaException {
         if (!checkARIMADataLength(params, data, forecastStartIndex, forecastEndIndex)) {
             val initialConditionSize = params.d + params.D * params.m;
             throw new ArimaException(
@@ -209,7 +211,7 @@ public final class ArimaSolver {
         if (error_sum == 0.0) {
             return 0;
         } else {
-            return (endIndex - startIndex) * Math.log(error_sum) + 2;
+            return (endIndex - startIndex) * FastMath.log(error_sum) + 2;
         }
     }
 
@@ -236,7 +238,8 @@ public final class ArimaSolver {
     }
 
     public static double setSigma2AndPredicationInterval(final ArimaParameterModel params,
-                                                         final ForecastResultModel forecastResult, final int forecastSize) {
+                                                         final ForecastResultModel forecastResult,
+                                                         final int forecastSize) {
         val coeffs_AR = params.getCurrentARCoefficients();
         val coeffs_MA = params.getCurrentMACoefficients();
         return forecastResult
@@ -261,6 +264,5 @@ public final class ArimaSolver {
             double meanStationary,
             boolean hasSeasonalI,
             boolean hasNonSeasonalI
-    ) {
-    }
+    ) {}
 }

@@ -1,4 +1,4 @@
-package math.arima.analytics;
+package math.series.time.arima.analytics;
 
 import lombok.val;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;

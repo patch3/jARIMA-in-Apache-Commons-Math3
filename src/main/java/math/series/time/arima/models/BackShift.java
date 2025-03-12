@@ -1,8 +1,8 @@
-package math.arima.models;
+package math.series.time.arima.models;
 
 import lombok.Getter;
 import lombok.val;
-import math.arima.core.ArimaException;
+import math.series.time.arima.core.ArimaException;
 
 /**
  * Backshift operator for handling lags in ARIMA.
