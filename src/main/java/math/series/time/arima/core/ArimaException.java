@@ -1,6 +1,8 @@
 package math.series.time.arima.core;
 
-public class ArimaException extends RuntimeException {
+import math.series.time.SeriesException;
+
+public class ArimaException extends SeriesException {
     public ArimaException(String message) {
         super(message);
     }

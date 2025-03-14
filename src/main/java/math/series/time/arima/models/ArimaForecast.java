@@ -3,16 +3,16 @@ package math.series.time.arima.models;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
+import math.series.time.ForecastResult;
 import math.series.time.arima.analytics.ArimaSolver;
 
 /**
  * ARIMA forecast result. Contains point forecasts and confidence intervals.
  */
 @Getter
-public class ForecastResultModel {
+public class ArimaForecast extends ForecastResult {
     private final double dataVariance;
 
-    private final double[] forecast;
     @Setter
     private double[] upperBound;
     @Setter
@@ -27,14 +27,13 @@ public class ForecastResultModel {
     /**
      * Constructor for ForecastResult
      */
-    public ForecastResultModel(final double[] pForecast, final double pDataVariance) {
-        this.forecast = pForecast;
+    public ArimaForecast(final double[] forecast, final double pDataVariance) {
+        super(forecast);
+        this.upperBound = new double[forecast.length];
+        System.arraycopy(forecast, 0, upperBound, 0, forecast.length);
 
-        this.upperBound = new double[pForecast.length];
-        System.arraycopy(pForecast, 0, upperBound, 0, pForecast.length);
-
-        this.lowerBound = new double[pForecast.length];
-        System.arraycopy(pForecast, 0, lowerBound, 0, pForecast.length);
+        this.lowerBound = new double[forecast.length];
+        System.arraycopy(forecast, 0, lowerBound, 0, forecast.length);
 
         this.dataVariance = pDataVariance;
 
@@ -71,7 +70,7 @@ public class ForecastResultModel {
             bound = constant * rmse * cumulativeSumOfMA[i];
             this.upperBound[i] = this.forecast[i] + bound;
             this.lowerBound[i] = this.forecast[i] - bound;
-            val normalizedVariance = getNormalizedVariance(Math.pow(bound, 2));
+            val normalizedVariance = getNormalizedVariance(bound*bound);
             if (normalizedVariance > maxNormalizedVariance) {
                 maxNormalizedVariance = normalizedVariance;
             }

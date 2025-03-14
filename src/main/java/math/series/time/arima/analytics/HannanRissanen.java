@@ -57,9 +57,7 @@ public final class HannanRissanen {
                     0,
                     forecast_length
             );
-
             updateErrors(data, errors, params, r, size);
-
             if (bestRMSE < 0 || anotherRMSE < bestRMSE) {
                 bestParams = estimatedParams;
                 bestRMSE = anotherRMSE;

@@ -37,7 +37,7 @@ public class ArimaModel {
      * @param forecastSize size of forecast
      * @return forecast result
      */
-    public ForecastResultModel forecast(final int forecastSize) {
+    public ArimaForecast forecast(final int forecastSize) {
         val forecastResult = ArimaSolver.forecastARIMA(
                 params, data, trainDataSize, trainDataSize + forecastSize
         );

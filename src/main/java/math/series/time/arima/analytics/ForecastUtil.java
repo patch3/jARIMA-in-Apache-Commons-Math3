@@ -68,10 +68,10 @@ public final class ForecastUtil {
         val cumulativeSquaredCoeffSumVector = new double[len];
         var cumulative = 0.0;
         for (var i = 0; i < len; i++) {
-            cumulative += Math.pow(coeffs[i], 2);
-            cumulativeSquaredCoeffSumVector[i] = Math.pow(cumulative, 0.5);
+            val coeff = coeffs[i];
+            cumulative += coeff*coeff;
+            cumulativeSquaredCoeffSumVector[i] = Math.sqrt(cumulative);
         }
-
         return cumulativeSquaredCoeffSumVector;
     }
 }

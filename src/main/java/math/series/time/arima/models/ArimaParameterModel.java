@@ -238,10 +238,11 @@ public final class ArimaParameterModel {
         return opMA.getCoefficientsFlattened();
     }
 
-    private BackShift mergeSeasonalWithNonSeasonal(int nonSeasonalLag, int seasonalLag,
+    private BackShift mergeSeasonalWithNonSeasonal(int nonSeasonalLag,
+                                                   int seasonalLag,
                                                    int seasonalStep) {
         val nonSeasonal = new BackShift(nonSeasonalLag, true);
-        val seasonal = new BackShift(seasonalLag * seasonalStep, false);
+        val seasonal    = new BackShift(seasonalLag * seasonalStep, false);
         for (var s = 1; s <= seasonalLag; ++s) {
             seasonal.setIndex(s * seasonalStep, true);
         }

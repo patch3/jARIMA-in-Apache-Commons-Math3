@@ -28,9 +28,9 @@ public final class BackShift {
         this.indices[0] = true; // zero index must be true all the time
     }
 
-    public BackShift(boolean[] indices, boolean copyIndices) {
+    public BackShift(boolean[] indices, boolean copyIndices) throws ArimaException {
         if (indices == null) {
-            throw new RuntimeException("null indices given");
+            throw new ArimaException("null indices given");
         }
         this.degree = indices.length - 1;
         if (copyIndices) {
@@ -114,7 +114,7 @@ public final class BackShift {
         return offsets;
     }
 
-    public double getParam(final int paramIndex) {
+    public double getParam(final int paramIndex) throws ArimaException {
         for (var j = 0; j < offsets.length; ++j) {
             if (offsets[j] == paramIndex) {
                 return coeffs[j];
@@ -127,7 +127,7 @@ public final class BackShift {
         return this.coeffs;
     }
 
-    public void setParam(final int paramIndex, final double paramValue) {
+    public void setParam(final int paramIndex, final double paramValue) throws ArimaException {
         var offsetIndex = -1;
         for (var j = 0; j < offsets.length; ++j) {
             if (offsets[j] == paramIndex) {

@@ -4,7 +4,7 @@ import lombok.val;
 import math.series.time.arima.core.ArimaException;
 import math.series.time.arima.models.ArimaModel;
 import math.series.time.arima.models.ArimaParameterModel;
-import math.series.time.arima.models.ForecastResultModel;
+import math.series.time.arima.models.ArimaForecast;
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -55,8 +55,8 @@ public final class ArimaSolver {
         return forecasts;
     }
 
-    public static ForecastResultModel forecastARIMA(final ArimaParameterModel params, final double[] data,
-                                                    final int forecastStartIndex, final int forecastEndIndex) throws ArimaException {
+    public static ArimaForecast forecastARIMA(final ArimaParameterModel params, final double[] data,
+                                              final int forecastStartIndex, final int forecastEndIndex) throws ArimaException {
         val forecastLength = validateAndGetForecastLength(params, data, forecastStartIndex, forecastEndIndex);
         val forecast = new double[forecastLength];
         val diffResult = prepareDifferentiation(params, data, forecastStartIndex);
@@ -88,7 +88,7 @@ public final class ArimaSolver {
         //===========================================
         System.arraycopy(forecast_merged, forecastStartIndex, forecast, 0, forecastLength);
 
-        return new ForecastResultModel(forecast, Integrator.computeVariance(diffResult.dataStationary));
+        return new ArimaForecast(forecast, Integrator.computeVariance(diffResult.dataStationary));
     }
 
     public static ArimaModel estimateARIMA(final ArimaParameterModel params, final double[] data,
@@ -238,7 +238,7 @@ public final class ArimaSolver {
     }
 
     public static double setSigma2AndPredicationInterval(final ArimaParameterModel params,
-                                                         final ForecastResultModel forecastResult,
+                                                         final ArimaForecast forecastResult,
                                                          final int forecastSize) {
         val coeffs_AR = params.getCurrentARCoefficients();
         val coeffs_MA = params.getCurrentMACoefficients();
