@@ -18,10 +18,10 @@ public final class HannanRissanen {
     /**
      * Estimates ARMA model parameters using an iterative refinement method.
      *
-     * @param data_orig      the original time series data
-     * @param params         the ARIMA model to populate with parameters
+     * @param data_orig       the original time series data
+     * @param params          the ARIMA model to populate with parameters
      * @param forecast_length the length of the forecast interval
-     * @param maxIteration   the maximum number of iterations
+     * @param maxIteration    the maximum number of iterations
      * @throws ArimaException if there is insufficient data for estimation
      */
     public static void estimateARMA(final double[] data_orig, final ArimaParameterModel params,

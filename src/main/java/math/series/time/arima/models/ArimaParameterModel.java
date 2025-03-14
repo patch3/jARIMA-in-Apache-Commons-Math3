@@ -242,7 +242,7 @@ public final class ArimaParameterModel {
                                                    int seasonalLag,
                                                    int seasonalStep) {
         val nonSeasonal = new BackShift(nonSeasonalLag, true);
-        val seasonal    = new BackShift(seasonalLag * seasonalStep, false);
+        val seasonal = new BackShift(seasonalLag * seasonalStep, false);
         for (var s = 1; s <= seasonalLag; ++s) {
             seasonal.setIndex(s * seasonalStep, true);
         }
@@ -288,7 +288,7 @@ public final class ArimaParameterModel {
     public void integrateNonSeasonal(final double[] data) {
         var current = data;
         for (var j = 0; j < d; ++j) {
-            val next = new double[data.length + 1];
+            val next = new double[current.length + 1];
             integrateNonSeasonal[j] = next;
             val init = initNonSeasonal[j];
             Integrator.integrate(current, next, init, 1);

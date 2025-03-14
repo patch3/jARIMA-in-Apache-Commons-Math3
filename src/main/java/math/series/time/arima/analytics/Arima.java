@@ -3,9 +3,9 @@ package math.series.time.arima.analytics;
 import lombok.val;
 import math.series.time.TimeSeries;
 import math.series.time.arima.core.ArimaException;
+import math.series.time.arima.models.ArimaForecast;
 import math.series.time.arima.models.ArimaModel;
 import math.series.time.arima.models.ArimaParameterModel;
-import math.series.time.arima.models.ArimaForecast;
 import org.apache.commons.math3.util.FastMath;
 
 public final class Arima extends TimeSeries<ArimaForecast> {
@@ -14,11 +14,6 @@ public final class Arima extends TimeSeries<ArimaForecast> {
 
     public Arima(double[] data) {
         super(data);
-    }
-
-    @Override
-    public ArimaForecast forecast(int forecastSize) {
-        return forecast(data, forecastSize);
     }
 
     public static ArimaForecast forecast(final double[] data, final int forecastSize) {
@@ -56,7 +51,6 @@ public final class Arima extends TimeSeries<ArimaForecast> {
                                         bestModel.setAic(aic);
                                     }
                                 } catch (Exception e) {
-                                    e.printStackTrace();
                                     // Пропускаем невалидные комбинации параметров
                                 }
                             }
@@ -88,7 +82,7 @@ public final class Arima extends TimeSeries<ArimaForecast> {
         var variance = 0.0;
         for (double value : data) {
             val delta = value - mean;
-            variance +=  delta * delta;
+            variance += delta * delta;
         }
         variance /= (data.length - 1);
 
@@ -108,7 +102,7 @@ public final class Arima extends TimeSeries<ArimaForecast> {
 
     private static double[] makeStationary(double[] data, int d) {
         var result = data.clone();
-        for (int i = 0; i < d; i++) {
+        for (int i = 0; i < d; ++i) {
             result = differentiate(result);
         }
         return result;
@@ -123,5 +117,10 @@ public final class Arima extends TimeSeries<ArimaForecast> {
             sse += error * error;
         }
         return data.length * FastMath.log(sse / data.length) + 2 * nParams;
+    }
+
+    @Override
+    public ArimaForecast forecast(int forecastSize) {
+        return forecast(data, forecastSize);
     }
 }

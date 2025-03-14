@@ -70,7 +70,7 @@ public class ArimaForecast extends ForecastResult {
             bound = constant * rmse * cumulativeSumOfMA[i];
             this.upperBound[i] = this.forecast[i] + bound;
             this.lowerBound[i] = this.forecast[i] - bound;
-            val normalizedVariance = getNormalizedVariance(bound*bound);
+            val normalizedVariance = getNormalizedVariance(bound * bound);
             if (normalizedVariance > maxNormalizedVariance) {
                 maxNormalizedVariance = normalizedVariance;
             }

@@ -2,9 +2,9 @@ package math.series.time.arima.analytics;
 
 import lombok.val;
 import math.series.time.arima.core.ArimaException;
+import math.series.time.arima.models.ArimaForecast;
 import math.series.time.arima.models.ArimaModel;
 import math.series.time.arima.models.ArimaParameterModel;
-import math.series.time.arima.models.ArimaForecast;
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -17,10 +17,10 @@ public final class ArimaSolver {
     /**
      * Performs forecasting for a stationary ARMA model.
      *
-     * @param params          the model parameters
-     * @param dataStationary  the stationary data
-     * @param startIndex      the start index for forecasting
-     * @param endIndex        the end index for forecasting
+     * @param params         the model parameters
+     * @param dataStationary the stationary data
+     * @param startIndex     the start index for forecasting
+     * @param endIndex       the end index for forecasting
      * @return an array of forecasted values
      */
     public static double[] forecastARMA(final ArimaParameterModel params, final double[] dataStationary,
@@ -182,11 +182,11 @@ public final class ArimaSolver {
     /**
      * Computes the Root Mean Squared Error (RMSE) between two arrays.
      *
-     * @param left           the reference values
-     * @param right          the forecasted values
+     * @param left            the reference values
+     * @param right           the forecasted values
      * @param leftIndexOffset the offset in the reference array
-     * @param startIndex     the start index for comparison
-     * @param endIndex       the end index for comparison
+     * @param startIndex      the start index for comparison
+     * @param endIndex        the end index for comparison
      * @return the RMSE value
      */
     public static double computeRMSE(final double[] left, final double[] right,
@@ -264,5 +264,6 @@ public final class ArimaSolver {
             double meanStationary,
             boolean hasSeasonalI,
             boolean hasNonSeasonalI
-    ) {}
+    ) {
+    }
 }

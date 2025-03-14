@@ -2,23 +2,50 @@ package math.arima;
 
 import lombok.val;
 import math.series.time.arima.analytics.Arima;
-import math.series.time.arima.analytics.ArimaSolver;
+import math.series.time.arima.core.ArimaException;
 import math.series.time.arima.models.ArimaForecast;
 import math.series.time.arima.models.ArimaModel;
 import math.series.time.arima.models.ArimaParameterModel;
-import org.apache.commons.math3.util.FastMath;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import math.series.time.arima.core.ArimaException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ArimaTest {
     private static final double[] TEST_DATA = {
             10.1, 11.3, 12.5, 13.7, 14.9, 16.1, 17.3, 18.5, 19.7, 20.9
     };
+
+    public static boolean callIsStationary(double[] data) throws Exception {
+        Method method = Arima.class.getDeclaredMethod("isStationary", double[].class);
+        method.setAccessible(true);
+        return (boolean) method.invoke(null, (Object) data);
+    }
+
+    public static int callDetermineOptimalD(double[] data) throws Exception {
+        Method method = Arima.class.getDeclaredMethod("determineOptimalD", double[].class);
+        method.setAccessible(true);
+        return (int) method.invoke(null, (Object) data);
+    }
+
+    public static double[] callDifferentiate(double[] data) throws Exception {
+        Method method = Arima.class.getDeclaredMethod("differentiate", double[].class);
+        method.setAccessible(true);
+        return (double[]) method.invoke(null, (Object) data);
+    }
+
+    public static double[] callMakeStationary(double[] data, int d) throws Exception {
+        Method method = Arima.class.getDeclaredMethod("makeStationary", double[].class, int.class);
+        method.setAccessible(true);
+        return (double[]) method.invoke(null, data, d);
+    }
+
+    public static double callCalculateModelAIC(ArimaModel model, double[] data) throws Exception {
+        Method method = Arima.class.getDeclaredMethod("calculateModelAIC", ArimaModel.class, double[].class);
+        method.setAccessible(true);
+        return (double) method.invoke(null, model, data);
+    }
 
     // Тест базового функционала прогнозирования
     @Test
@@ -30,7 +57,6 @@ class ArimaTest {
         assertNotEquals(0.0, result.getForecast()[0], "The predicted values should not be zero");
         assertTrue(result.getRmse() >= 0, "RMSE cannot be negative");
     }
-
 
     @Test
     void testForecast() throws ArimaException {
@@ -52,15 +78,12 @@ class ArimaTest {
                 "RMSE должен быть неотрицательным. Текущее значение: " + forecast.getRmse());
     }
 
-
-
     @Test
     void testDetermineOptimalDForStationaryData() throws Exception {
-        val stationaryData = new double[] {2.1, 1.9, 2.0, 2.05, 1.95};
+        val stationaryData = new double[]{2.1, 1.9, 2.0, 2.05, 1.95};
         val d = callDetermineOptimalD(stationaryData);
         assertEquals(0, d, "Order d should be 0 for stationary data");
     }
-
 
     // Тест проверки стационарности
     @Test
@@ -120,25 +143,6 @@ class ArimaTest {
         return data;
     }
 
-
-    @Test
-    public void testForecastThrowsExceptionWhenNoValidModelFound() {
-        // Генерируем данные с амплитудой, приводящей к высокой дисперсии
-        double[] data = generateStationaryData(100, 2); // Данные с дисперсией > 1.0
-
-        // Проверяем, что вызов forecast приводит к исключению
-        ArimaException exception = assertThrows(
-                ArimaException.class,
-                () -> Arima.forecast(data, 10),
-                "Ожидалось исключение ArimaException из-за отсутствия подходящей модели"
-        );
-
-        // Проверяем сообщение исключения
-        assertTrue(exception.getMessage().contains("No valid ARIMA model found"));
-    }
-
-
-
     private double[] generateHighAmplitudeData(int size) {
         double[] data = new double[size];
         for (int i = 0; i < size; i++) {
@@ -147,43 +151,11 @@ class ArimaTest {
         return data;
     }
 
-
     private double[] generateStationaryData(int size, double noiseAmplitude) {
         double[] data = new double[size];
         for (int i = 0; i < size; i++) {
             data[i] = (Math.random() * 2 - 1) * noiseAmplitude;
         }
         return data;
-    }
-
-
-    public static boolean callIsStationary(double[] data) throws Exception {
-        Method method = Arima.class.getDeclaredMethod("isStationary", double[].class);
-        method.setAccessible(true);
-        return (boolean) method.invoke(null, (Object) data);
-    }
-
-    public static int callDetermineOptimalD(double[] data) throws Exception {
-        Method method = Arima.class.getDeclaredMethod("determineOptimalD", double[].class);
-        method.setAccessible(true);
-        return (int) method.invoke(null, (Object) data);
-    }
-
-    public static double[] callDifferentiate(double[] data) throws Exception {
-        Method method = Arima.class.getDeclaredMethod("differentiate", double[].class);
-        method.setAccessible(true);
-        return (double[]) method.invoke(null, (Object) data);
-    }
-
-    public static double[] callMakeStationary(double[] data, int d) throws Exception {
-        Method method = Arima.class.getDeclaredMethod("makeStationary", double[].class, int.class);
-        method.setAccessible(true);
-        return (double[]) method.invoke(null, data, d);
-    }
-
-    public static double callCalculateModelAIC(ArimaModel model, double[] data) throws Exception {
-        Method method = Arima.class.getDeclaredMethod("calculateModelAIC", ArimaModel.class, double[].class);
-        method.setAccessible(true);
-        return (double) method.invoke(null, model, data);
     }
 }

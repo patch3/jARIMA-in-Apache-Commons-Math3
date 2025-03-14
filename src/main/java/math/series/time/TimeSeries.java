@@ -23,6 +23,7 @@ public abstract class TimeSeries<T extends ForecastResult> {
 
     /**
      * Forecasting future values
+     *
      * @return Forecast result
      */
     public abstract T forecast(int forecastSize);

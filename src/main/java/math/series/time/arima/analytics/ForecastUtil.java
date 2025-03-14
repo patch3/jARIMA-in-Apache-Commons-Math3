@@ -69,7 +69,7 @@ public final class ForecastUtil {
         var cumulative = 0.0;
         for (var i = 0; i < len; i++) {
             val coeff = coeffs[i];
-            cumulative += coeff*coeff;
+            cumulative += coeff * coeff;
             cumulativeSquaredCoeffSumVector[i] = Math.sqrt(cumulative);
         }
         return cumulativeSquaredCoeffSumVector;
