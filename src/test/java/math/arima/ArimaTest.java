@@ -17,22 +17,10 @@ class ArimaTest {
             10.1, 11.3, 12.5, 13.7, 14.9, 16.1, 17.3, 18.5, 19.7, 20.9
     };
 
-    public static boolean callIsStationary(double[] data) throws Exception {
-        Method method = Arima.class.getDeclaredMethod("isStationary", double[].class);
-        method.setAccessible(true);
-        return (boolean) method.invoke(null, (Object) data);
-    }
-
     public static int callDetermineOptimalD(double[] data) throws Exception {
         Method method = Arima.class.getDeclaredMethod("determineOptimalD", double[].class);
         method.setAccessible(true);
         return (int) method.invoke(null, (Object) data);
-    }
-
-    public static double[] callDifferentiate(double[] data) throws Exception {
-        Method method = Arima.class.getDeclaredMethod("differentiate", double[].class);
-        method.setAccessible(true);
-        return (double[]) method.invoke(null, (Object) data);
     }
 
     public static double[] callMakeStationary(double[] data, int d) throws Exception {
@@ -41,13 +29,7 @@ class ArimaTest {
         return (double[]) method.invoke(null, data, d);
     }
 
-    public static double callCalculateModelAIC(ArimaModel model, double[] data) throws Exception {
-        Method method = Arima.class.getDeclaredMethod("calculateModelAIC", ArimaModel.class, double[].class);
-        method.setAccessible(true);
-        return (double) method.invoke(null, model, data);
-    }
-
-    // Тест базового функционала прогнозирования
+    // A test of the basic forecasting functionality
     @Test
     void testBasicForecast() {
         val result = Arima.forecast(TEST_DATA, 3);
@@ -60,7 +42,7 @@ class ArimaTest {
 
     @Test
     void testForecast() throws ArimaException {
-        // Генерация данных с увеличенной амплитудой для избежания численных ошибок
+        // Generating data with increased amplitude to avoid numerical errors
         double[] data = generateStationaryData(100, 0.5);
         Arima arima = new Arima(data);
         int forecastSize = 5;
@@ -69,11 +51,11 @@ class ArimaTest {
         assertNotNull(forecast, "Прогноз не должен быть null");
         assertEquals(forecastSize, forecast.getForecast().length, "Неверная длина прогноза");
 
-        // Проверка на осмысленность AIC (может быть отрицательным в корректной модели)
+        // Checking for the meaningfulness of the AIC (maybe negative in a correct model)
         assertNotEquals(-1.0, forecast.getAic(),
                 "AIC не должен быть значением по умолчанию (-1). Текущее значение: " + forecast.getAic());
 
-        // Проверка, что RMSE положительный
+        // Checking that RMSE is positive
         assertTrue(forecast.getRmse() >= 0,
                 "RMSE должен быть неотрицательным. Текущее значение: " + forecast.getRmse());
     }
@@ -85,7 +67,7 @@ class ArimaTest {
         assertEquals(0, d, "Order d should be 0 for stationary data");
     }
 
-    // Тест проверки стационарности
+    // Stationary check test
     @Test
     void testIsStationary() throws Exception {
         assertTrue(TestUtils.callIsStationary(new double[]{1.0, 1.1, 0.9, 1.05, 0.95}));
@@ -94,7 +76,7 @@ class ArimaTest {
         assertFalse(TestUtils.callIsStationary(new double[]{2.0, 1.0, 5.0, 9.0, 0.4}));
     }
 
-    // Тест создания стационарного ряда
+    // Stationary row creation test
     @Test
     void testMakeStationary() throws Exception {
         double[] data = {1.0, 2.0, 3.0, 4.0, 5.0};
@@ -102,30 +84,29 @@ class ArimaTest {
         assertTrue(TestUtils.callIsStationary(stationary));
     }
 
-    // Тест расчета AIC
+    // AIC Calculation Test
     @Test
     void testCalculateAIC() throws Exception {
         val params = new ArimaParameterModel(1, 1, 1, 0, 0, 0, 12);
         val model = new ArimaModel(params, new double[10], 5);
         double aic = TestUtils.callCalculateModelAIC(model, new double[]{1.0, 2.0, 3.0});
-        assertTrue(aic != Double.NaN, "AIC should be a valid number");
+        assertFalse(Double.isNaN(aic), "AIC should be a valid number");
     }
 
-    // Тест обработки невалидных входных данных
+    // Invalid input data processing test
     @Test
     void testInvalidInputHandling() {
         assertThrows(IllegalArgumentException.class, () ->
                         Arima.forecast(new double[0], 5),
                 "Empty data should throw exception"
         );
-
         assertThrows(ArimaException.class, () ->
                         Arima.forecast(TEST_DATA, -1),
                 "Negative forecast size should throw exception"
         );
     }
 
-    // Тест сезонных паттернов
+    // Seasonal Patterns Test
     @Test
     void testSeasonalityDetection() throws Exception {
         double[] seasonalData = TEST_DATA;
@@ -133,22 +114,6 @@ class ArimaTest {
 
         int d = callDetermineOptimalD(seasonalData);
         assertTrue(d >= 1, "Seasonal data should require differentiation");
-    }
-
-    private double[] generateStationaryData(int size) {
-        double[] data = new double[size];
-        for (int i = 0; i < size; i++) {
-            data[i] = Math.random() * 2 - 1; // [-1, 1]
-        }
-        return data;
-    }
-
-    private double[] generateHighAmplitudeData(int size) {
-        double[] data = new double[size];
-        for (int i = 0; i < size; i++) {
-            data[i] = Math.random() * 4 - 2; // Диапазон [-2, 2], дисперсия > 1.0
-        }
-        return data;
     }
 
     private double[] generateStationaryData(int size, double noiseAmplitude) {

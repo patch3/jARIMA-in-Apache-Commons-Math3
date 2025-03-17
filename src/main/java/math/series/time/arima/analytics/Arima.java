@@ -1,5 +1,7 @@
 package math.series.time.arima.analytics;
 
+import lombok.NoArgsConstructor;
+import lombok.extern.java.Log;
 import lombok.val;
 import math.series.time.TimeSeries;
 import math.series.time.arima.core.ArimaException;
@@ -8,8 +10,10 @@ import math.series.time.arima.models.ArimaModel;
 import math.series.time.arima.models.ArimaParameterModel;
 import org.apache.commons.math3.util.FastMath;
 
+@Log
+@NoArgsConstructor
 public final class Arima extends TimeSeries<ArimaForecast> {
-    private static final int MAX_D = 2; // Максимальный порядок дифференцирования
+    private static final int MAX_D = 3; // Максимальный порядок дифференцирования
     private static final int SEASONAL_PERIOD = 12; // Сезонный период (напр. 12 для месячных данных)
 
     public Arima(double[] data) {
@@ -51,7 +55,7 @@ public final class Arima extends TimeSeries<ArimaForecast> {
                                         bestModel.setAic(aic);
                                     }
                                 } catch (Exception e) {
-                                    // Пропускаем невалидные комбинации параметров
+                                    // Skipping invalid parameter combinations
                                 }
                             }
                         }
@@ -59,7 +63,10 @@ public final class Arima extends TimeSeries<ArimaForecast> {
                 }
             }
             if (bestModel == null) {
-                throw new ArimaException("No valid ARIMA model found");
+                log.warning("Using fallback model ARIMA(0,1,0)");
+                val params = new ArimaParameterModel(0, 1, 0, 0, 0, 0, SEASONAL_PERIOD);
+                val model = ArimaSolver.estimateARIMA(params, data, data.length, data.length + forecastSize);
+                bestModel = model.forecast(forecastSize);
             }
             return bestModel;
         } catch (final Exception ex) {
@@ -93,9 +100,8 @@ public final class Arima extends TimeSeries<ArimaForecast> {
         if (data.length <= 1) return data;
 
         val diff = new double[data.length - 1];
-        double[] initial = {data[0]}; // начальное условие для дифференцирования
+        double[] initial = {data[0]};
 
-        // Используем метод из Integrator
         Integrator.differentiate(data, diff, initial, 1);
         return diff;
     }

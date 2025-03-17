@@ -13,17 +13,15 @@ public class TestUtils {
     }
 
     public static double callCalculateModelAIC(ArimaModel model, double[] data) throws Exception {
-        // Получаем приватный метод
+        // Getting a private method
         Method method = Arima.class.getDeclaredMethod(
                 "calculateModelAIC",
                 ArimaModel.class,
                 double[].class
         );
-        method.setAccessible(true); // Разрешаем доступ
+        method.setAccessible(true); // Allowing access
 
-        // Вызываем статический метод (передаем null как экземпляр)
+        // Calling the static method (passing null as an instance)
         return (double) method.invoke(null, model, data);
     }
-
-
 }
